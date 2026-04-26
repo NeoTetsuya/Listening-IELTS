@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P1 Test 7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 17px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* Header, Split Panes, Footer */
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        /* Typography Improvements */
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+        .reading-passage h3 {
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-transform: uppercase;
+        }
+
+        /* Question Styles */
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        /* Input Styles for Fill-in-the-blanks */
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        /* Answer Feedback Animations & Styles */
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Vocabulary Styles */
+        .vocab-word {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px dotted #93c5fd;
+            transition: all 0.2s ease-in-out;
+            padding: 0 2px;
+        }
+        .vocab-word:hover {
+            background-color: #dbeafe;
+            border-bottom-style: solid;
+            border-radius: 2px;
+        }
+
+        /* Highlight Tooltip */
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; /* green-200 */
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 5px 1fr;
+            }
+            .splitter {
+                cursor: row-resize;
+            }
+            .pane {
+                padding: 1rem;
+            }
+            .fill-in-blank {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 7</span></h1>
+        </div>
+        <div class="flex items-center space-x-5">
+            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+        </div>
+    </header>
+
+    <!-- Main Content (Left and Right Questions Split) -->
+    <main id="content-panes" class="content-panes">
+        <!-- Left Pane: Questions 1-6 -->
+        <div id="left-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+
+        <!-- Splitter -->
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+
+        <!-- Right Pane: Questions 7-10 -->
+        <div id="right-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+    </main>
+
+    <!-- Footer with Audio Player -->
+    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center space-x-6 w-full">
+                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 1 of 1
+                </div>
+                <!-- Custom Audio Player -->
+                <div class="w-full max-w-lg mt-1">
+                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <audio id="custom-audio-element" src="https://ieltstrainingonline.com/wp-content/uploads/2021/07/IELTS-Recent-Actual-Test-With-Answers-Practice-Test-01-Section1.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2">
+                    <!-- Section buttons will be loaded here by JS -->
+                </div>
+                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Transcript
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Highlight Tooltip -->
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<!-- Vocabulary Modal -->
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+        <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
+        <div class="flex items-center mb-6 border-b pb-4">
+            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        </div>
+        <div class="flex items-center mb-5">
+            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            </button>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+        </div>
+        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+    </div>
+</div>
+
+<!-- Transcript Modal -->
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
+            <div class="space-y-5 max-w-3xl mx-auto">
+                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">School Excursion Discussion</h4>
+
+                <p><i class="text-gray-500 text-base mb-4 block">You will hear two teachers, Andrew and Katie, discussing the coming excursion of their language class.</i></p>
+
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Well, we have this school excursion planned, but when exactly is it? Is it this Tuesday or Wednesday?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Well it can’t be Tuesday, with the English tests taking place.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Ah, right. Not Tuesday, but <span class="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1 uppercase tracking-wider">Example</span> Wednesday.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> That’s right – all day Wednesday – taking a bus outside the city.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> And where are we going?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Ah, last month we went to Arthur Island, so this time we’re going to the… <mark class="answer-highlight">Animal Park</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q1]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Arthur Island was okay, but it was too cold. Let’s hope the weather for this week’s excursion is better. I don’t suppose animals care about bad weather, but I certainly do. Have you heard the forecast?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Yes, and it’s not too bad. Basically, they’re saying Monday will be sunny.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Good…</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> But then the weather will change.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Not so good.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Yes, Tuesday we’ll have some showers, but by Wednesday, the day of our excursion, it will be… well, their words are <mark class="answer-highlight">‘cold and cloudy’</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q2]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Cold and cloudy. Well, as long as it isn’t ‘wet and rainy’, I’m happy enough. We won’t need umbrellas, just warm clothing. And what time will we get there?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Let’s see. The bus picks us up at 8.30 am, and then it’s an hour and a half on the road, so we arrive at 10 am… sorry, with the 15 minutes break, that will actually be <mark class="answer-highlight">10.15 am</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q3]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> That’s early enough. Then all our students can see the animals, have their fun, and do whatever they want to do.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Well, one fun event planned that day is <mark class="answer-highlight">‘Birds of Prey’</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q4]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> What’s that?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> That’s when they bring out several birds of prey: eagles, falcons, kites, those sorts of birds, and throw pieces of meat into the air, and the birds swoop down and eat them. It’s quite impressive.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Sounds great. ‘Birds of Prey’. Are there any other activities?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> There’s a catered lunch, at the park restaurant. We’ve already paid for that, and in the afternoon there’s… well, I had a choice between the ‘Reptile Display’ and the ‘Koala Handling’. In the reptile display, the students can handle live pythons and various other snakes.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Surely they’d rather hold koalas?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> I’m sure, but the koalas can’t be handled unless the weather’s sunny, and given the forecast, I thought it better to choose <mark class="answer-highlight">the reptile display</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Ummm, that’s a shame. These Asian students would love the ‘Koala Handling’.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Yes, I know, but we can’t control the weather.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> And, then we get back. What time will that be?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> We leave the park at 4.30, but then we face traffic, so wo won’t get back until well after 6pm. It will most likely be <mark class="answer-highlight">6.30</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span>. But that’s better than the last trip: we didn’t get home until 8.30 that time.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Yes, that was a bit too late, wasn’t it?</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Andrew, I understand you’ve been doing some research regarding the breakdown, by nationality of our student body. That must have produced some interesting results.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> You’re right. I got some statistics from head office.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> I would imagine that most of our students are either Japanese or Chinese.</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> You imagine right. But it’s the <mark class="answer-highlight">Chinese</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span> who constitute the majority, but only just. I had thought Koreans might be second, but it’s actually the <mark class="answer-highlight">Japanese</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span>, quite close behind. It’s somewhat surprising, but obviously all those Study Tours that our university markets in Japan are bringing in students.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> What’s the breakdown exactly?</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Japanese are a quarter of the whole, which is considerable. Last year they were only 16%, so that market has grown nicely. Ah, the only other proportions of some weight are the Indonesians and Koreans – about the same. Indonesians at 15%, and… ah… the <mark class="answer-highlight">Koreans</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span> are a little higher -not like last year when they were less than 10%.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> I thought we’d have more Indonesians than Koreans?</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Well, as I said, they’re about the same – just like the Saudi and Thai student numbers, almost the same also – both just under 10.</p>
+                <p><strong class="text-green-700 font-semibold">Katie:</strong> Which one is bigger?</p>
+                <p><strong class="text-blue-700 font-semibold">Andrew:</strong> Ah, <mark class="answer-highlight">Thai</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span> students number just a fraction more. As for the other nationalities, collectively they’re only 3%, so it wasn’t worth giving each of them a separate category. I just grouped them under ‘other’ – that’s Vietnamese, South American, a couple of Russians, and so on.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
+    </div>
+</div>
+
+<script>
+    // --- DATA ---
+    const vocabulary = {}; 
+
+    const explanations = {
+        s0_q1: "Katie mentions that since they went to Arthur Island last month, this time they are going to the 'Animal Park'.",
+        s0_q2: "Katie confirms the weather forecast for Wednesday, the day of the excursion, is 'cold and cloudy'.",
+        s0_q3: "Katie calculates the travel time and the 15-minute break, stating that they will actually arrive at 10.15 am.",
+        s0_q4: "When Andrew asks about activities, Katie describes a fun event planned called 'Birds of Prey'.",
+        s0_q5: "Katie explains she chose 'the reptile display' instead of Koala Handling because of the cloudy weather forecast.",
+        s0_q6: "Katie estimates the return time considering the traffic, stating it will most likely be 6.30 pm.",
+        s0_q7: "Andrew confirms that the 'Chinese' constitute the majority of their students.",
+        s0_q8: "Andrew corrects Katie's assumption about Koreans, stating that the 'Japanese' are actually second, right behind the Chinese at 25%.",
+        s0_q9: "Andrew notes that the 'Koreans' make up 16% of the student body, slightly higher than the Indonesians.",
+        s0_q10: "Andrew clarifies that between Saudi and Thai students, the 'Thai' students number a fraction more, making up 8%."
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 1",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">School Excursion</h3>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 1-6</span>
+                                </div>
+                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    Complete the notes below. Write <strong>NO MORE THAN THREE WORDS OR A NUMBER</strong> for each answer.
+                                </p>
+                                
+                                <div class="space-y-5">
+                                    <div class="mb-2 text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm">
+                                        <span class="font-bold text-blue-900 w-32 inline-block">Day:</span> <span class="text-blue-900 font-medium">Wednesday (Example)</span>
+                                    </div>
+                                    
+                                    <div class="q-item" id="container-s0_q1">
+                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-40 mb-1 sm:mb-0">Destination:</span>
+                                        <span><strong class="text-blue-600 mx-1">1</strong><input type="text" name="s0_q1" class="fill-in-blank w-48" autocomplete="off"></span>
+                                    </div>
+                                    
+                                    <div class="q-item" id="container-s0_q2">
+                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-40 mb-1 sm:mb-0">Weather:</span>
+                                        <span><strong class="text-blue-600 mx-1">2</strong><input type="text" name="s0_q2" class="fill-in-blank w-48" autocomplete="off"></span>
+                                    </div>
+
+                                    <div class="q-item" id="container-s0_q3">
+                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-40 mb-1 sm:mb-0">Arrival time:</span>
+                                        <span><strong class="text-blue-600 mx-1">3</strong><input type="text" name="s0_q3" class="fill-in-blank w-36" autocomplete="off"></span>
+                                    </div>
+
+                                    <div class="mt-4 pt-5 border-t border-gray-100">
+                                        <h4 class="font-bold text-gray-800 mb-3 text-lg">Activities Planned</h4>
+                                        
+                                        <div class="q-item" id="container-s0_q4">
+                                            <span class="font-bold text-gray-800 block sm:inline-block sm:w-32 mb-1 sm:mb-0 ml-4">See:</span>
+                                            <span><strong class="text-blue-600 mx-1">4</strong><input type="text" name="s0_q4" class="fill-in-blank w-48" autocomplete="off"></span>
+                                        </div>
+                                        
+                                        <div class="mb-2 pl-4 py-2">
+                                            <span class="font-bold text-gray-800 inline-block w-32">Eat:</span>
+                                            <span class="text-gray-700">Catered lunch</span>
+                                        </div>
+                                        
+                                        <div class="q-item" id="container-s0_q5">
+                                            <span class="font-bold text-gray-800 block sm:inline-block sm:w-32 mb-1 sm:mb-0 ml-4">Attend:</span>
+                                            <span><strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-48" autocomplete="off"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="q-item mt-2 pt-5 border-t border-gray-100" id="container-s0_q6">
+                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-40 mb-1 sm:mb-0">Return time:</span>
+                                        <span><strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-36" autocomplete="off"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-16">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 7-10</span>
+                                </div>
+                                <p class="mb-6 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    Complete the table. Write <strong>ONE WORD ONLY</strong> for each answer.
+                                </p>
+                                
+                                <div class="space-y-4 flex-1">
+                                    <table class="w-full text-left border-collapse border border-gray-200">
+                                        <thead>
+                                            <tr class="bg-gray-100 text-gray-800 border-b-2 border-gray-200">
+                                                <th class="p-3">Nationality</th>
+                                                <th class="p-3 border-l border-gray-200">%</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-gray-700">
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3">
+                                                    <div class="q-item" id="container-s0_q7">
+                                                        <strong class="text-blue-600 mr-2">7</strong><input type="text" name="s0_q7" class="fill-in-blank w-32" autocomplete="off">
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">26</td>
+                                            </tr>
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3">
+                                                    <div class="q-item" id="container-s0_q8">
+                                                        <strong class="text-blue-600 mr-2">8</strong><input type="text" name="s0_q8" class="fill-in-blank w-32" autocomplete="off">
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">25</td>
+                                            </tr>
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3">
+                                                    <div class="q-item" id="container-s0_q9">
+                                                        <strong class="text-blue-600 mr-2">9</strong><input type="text" name="s0_q9" class="fill-in-blank w-32" autocomplete="off">
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">16</td>
+                                            </tr>
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3 pl-4">Indonesian</td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">15</td>
+                                            </tr>
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3">
+                                                    <div class="q-item" id="container-s0_q10">
+                                                        <strong class="text-blue-600 mr-2">10</strong><input type="text" name="s0_q10" class="fill-in-blank w-32" autocomplete="off">
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">8</td>
+                                            </tr>
+                                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                <td class="p-3 pl-4">Saudi</td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">7</td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 pl-4">Other</td>
+                                                <td class="p-3 font-semibold border-l border-gray-200">3</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Check Answers Button container gets appended here -->
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q1: "the animal park|animal park", 
+        s0_q2: "cold and cloudy", 
+        s0_q3: "10.15 am|10:15 am|10.15am|10:15am|10.15", 
+        s0_q4: "birds of prey", 
+        s0_q5: "the reptile display|reptile display", 
+        s0_q6: "6.30 pm|6:30 pm|6.30pm|6:30pm|6.30", 
+        s0_q7: "chinese", 
+        s0_q8: "japanese", 
+        s0_q9: "korean|koreans", 
+        s0_q10: "thai"
+    };
+
+    // --- APPLICATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            // State
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 17,
+
+            // Elements
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+            vocabModal: document.getElementById('vocab-modal'),
+            vocabModalContent: document.getElementById('vocab-modal-content'),
+            closeVocabModalBtn: document.getElementById('close-vocab-modal'),
+            vocabWordEl: document.getElementById('vocab-word'),
+            vocabMeaningEl: document.getElementById('vocab-meaning'),
+            vocabPronunciationText: document.getElementById('vocab-pronunciation-text'),
+            playAudioBtn: document.getElementById('play-audio-btn'),
+
+            // Transcript Elements
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            // Alert Elements
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                // Font Size Events
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                // Vocab Modal Events
+                this.closeVocabModalBtn.addEventListener('click', () => this.closeVocabModal());
+                this.vocabModal.addEventListener('click', (e) => {
+                   if (e.target === this.vocabModal) this.closeVocabModal();
+                });
+
+                // Transcript Modal Events
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Alert Modal Events
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
+                });
+
+                // Input delegator for saving answers and UI styling
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                
+                // Vocab Words Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('vocab-word')) {
+                        const wordKey = e.target.dataset.word;
+                        this.openVocabModal(wordKey);
+                    }
+                });
+
+                // Check Buttons Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.range, e.target.dataset.prefix);
+                    }
+                });
+                
+                // Real Audio Pronunciation Event
+                this.playAudioBtn.addEventListener('click', () => {
+                   const word = this.vocabWordEl.textContent;
+                   if (!word) return;
+                   
+                   if ('speechSynthesis' in window) {
+                       window.speechSynthesis.cancel();
+                   }
+                   
+                   this.playAudioBtn.classList.remove('text-blue-600', 'bg-blue-50');
+                   this.playAudioBtn.classList.add('bg-green-500', 'text-white');
+                   
+                   if ('speechSynthesis' in window) {
+                       const utterance = new SpeechSynthesisUtterance(word);
+                       utterance.lang = 'en-GB'; 
+                       utterance.rate = 0.9; 
+                       
+                       utterance.onend = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       utterance.onerror = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       window.speechSynthesis.speak(utterance);
+                   } else {
+                       alert("Sorry, your browser doesn't support text-to-speech audio.");
+                       setTimeout(() => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       }, 500);
+                   }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 14) this.currentFontSize = 14;
+                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openVocabModal(wordKey) {
+                const data = vocabulary[wordKey];
+                if (data) {
+                    this.vocabWordEl.textContent = wordKey;
+                    this.vocabMeaningEl.textContent = data.meaning;
+                    this.vocabPronunciationText.textContent = data.phonetic || '';
+                    this.vocabModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        this.vocabModalContent.classList.remove('scale-95', 'opacity-0');
+                        this.vocabModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
+            },
+
+            closeVocabModal() {
+                if ('speechSynthesis' in window) {
+                   window.speechSynthesis.cancel();
+                }
+                this.vocabModalContent.classList.remove('scale-100', 'opacity-100');
+                this.vocabModalContent.classList.add('scale-95', 'opacity-0');
+                this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                
+                setTimeout(() => {
+                    this.vocabModal.classList.add('hidden');
+                }, 200);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
+
+            handleInput(e) {
+                if (e.target.name && e.target.type === 'text') {
+                    this.userAnswers[e.target.name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    inputs.forEach(input => {
+                        input.value = value;
+                    });
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, range, prefix) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    this.updateTranscriptState();
+                    return;
+                }
+
+                // Check if all blanks are filled
+                const [startQ, endQ] = range.split('-').map(Number);
+                let allAnswered = true;
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    const answer = (this.userAnswers[qId] || "").trim();
+                    if (answer === "") {
+                        allAnswered = false;
+                        break;
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks before checking your answers.");
+                    return;
+                }
+
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(exerciseKey, range, prefix);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                // Load left pane and right pane
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+
+                // Section Tabs Logic
+                this.sectionTabsContainer.innerHTML = data.sections.map((sec, index) =>
+                    `<button class="px-4 py-1.5 ${index === this.currentSection ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="${index}">Section ${index + 1}</button>`
+                ).join('');
+
+                this.passageIndicator.textContent = `Section ${this.currentSection + 1} of ${data.sections.length}`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                // Check if current exercise was already validated
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
+                    }
+                });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'note_completion', prefix: 's0_q', startQ: 1, endQ: 10, title: 'Note Completion (1-10)' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            Check Answers
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(exerciseKey, range, prefix) {
+                const [startQ, endQ] = range.split('-').map(Number);
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    let questionContainer = document.getElementById(`container-${qId}`);
+
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    if (inputs.length === 0) continue;
+
+                    const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                    const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                    const input = inputs[0];
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        input.classList.add('correct-answer-text');
+                    } else {
+                        input.classList.add('incorrect-answer-text');
+                    }
+
+                    // Add Explanation
+                    if (explanations[qId] && questionContainer) {
+                         const existingExpl = document.getElementById(`expl-${qId}`);
+                         if (!existingExpl) {
+                            const explDiv = document.createElement('div');
+                            explDiv.id = `expl-${qId}`;
+                            explDiv.className = 'explanation-box mt-3 mb-4';
+                            const formattedAnswer = correctAnswersList[0].toUpperCase();
+                            explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                            questionContainer.insertAdjacentElement('afterend', explDiv);
+                         }
+                    }
+                }
+
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        let allAnswered = true;
+                        for (let i = ex.startQ; i <= ex.endQ; i++) {
+                            const qId = `${ex.prefix}${i}`;
+                            const answer = (this.userAnswers[qId] || "").trim();
+                            if (answer === "") {
+                                allAnswered = false;
+                                break;
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        // Highlight within the left and right panes
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
