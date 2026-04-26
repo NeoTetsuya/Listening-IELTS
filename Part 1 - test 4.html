@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P1 Test 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 17px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* Header, Split Panes, Footer */
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        /* Typography Improvements */
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+        .reading-passage h3 {
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-transform: uppercase;
+        }
+
+        /* Question Styles */
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        /* Input Styles for Fill-in-the-blanks */
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        /* Answer Feedback Animations & Styles */
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Vocabulary Styles */
+        .vocab-word {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px dotted #93c5fd;
+            transition: all 0.2s ease-in-out;
+            padding: 0 2px;
+        }
+        .vocab-word:hover {
+            background-color: #dbeafe;
+            border-bottom-style: solid;
+            border-radius: 2px;
+        }
+
+        /* Highlight Tooltip */
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; /* green-200 */
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 5px 1fr;
+            }
+            .splitter {
+                cursor: row-resize;
+            }
+            .pane {
+                padding: 1rem;
+            }
+            .fill-in-blank {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 12</span></h1>
+        </div>
+        <div class="flex items-center space-x-5">
+            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+        </div>
+    </header>
+
+    <!-- Main Content (Left and Right Questions Split) -->
+    <main id="content-panes" class="content-panes">
+        <!-- Left Pane: Questions 1-5 -->
+        <div id="left-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+
+        <!-- Splitter -->
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+
+        <!-- Right Pane: Questions 6-10 -->
+        <div id="right-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+    </main>
+
+    <!-- Footer with Audio Player -->
+    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center space-x-6 w-full">
+                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 1 of 1
+                </div>
+                <!-- Custom Audio Player -->
+                <div class="w-full max-w-lg mt-1">
+                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/12.1.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2">
+                    <!-- Section buttons will be loaded here by JS -->
+                </div>
+                <button id="transcript-btn" class="px-4 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Transcript
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Highlight Tooltip -->
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<!-- Vocabulary Modal -->
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+        <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
+        <div class="flex items-center mb-6 border-b pb-4">
+            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        </div>
+        <div class="flex items-center mb-5">
+            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            </button>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+        </div>
+        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+    </div>
+</div>
+
+<!-- Transcript Modal -->
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
+            <div class="space-y-5 max-w-3xl mx-auto">
+                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Plan For Sharing Accommodation</h4>
+
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Hey Jim, it’s Peter.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Oh hey Peter. What’s up?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> I thought I’d call so we could hammer out the details for next year’s <span class="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1 uppercase tracking-wider">Example</span> lease.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> That’s a good idea. Did we ever decide on how to split the total rent?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Well, I was thinking since my room is bigger I probably should pay a little more, so I could pay £110 and you could pay £<mark class="answer-highlight">80</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q1]</span>. Does that sound okay?</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Considering that my old apartment cost me £100 for a smaller room, I’m definitely alright with that! Hey, I was looking at a map of the area, and can’t seem to find a bus stop near it. Do you know where we would catch the bus?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Well, the bus is actually pretty far from us, but we have that <mark class="answer-highlight">garage</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q2]</span> that we can park out cars in.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Wow, that’s great! Convenient parking is hard to find, so we’re lucky we have that. Okay, so we have a whole lot of things we’ll need to buy when we move in - how do you want to split that up?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> I was wondering - do you still work at the <mark class="answer-highlight">supermarket</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q3]</span>?</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Yep, every Tuesday and Saturday.</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Would you be able to buy things from there if I send you a shopping list?</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Sure, I can do that.</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Great. Then I can take care of whatever else we need that you wouldn’t get at a supermarket. If you want, I’ll pick you up from work that day and we can go to the apartment together.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> That would be great, thanks.</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> No problem - that way we can split the cost of <mark class="answer-highlight">petrol</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q4]</span>.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Works for me. It’s so expensive these days, isn’t it?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> It’s downright obscene.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> So let’s figure out what appliances we need. Do we have a microwave?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Yes, the landlord’s providing that for us. Hey, do you still have that space <mark class="answer-highlight">heater</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span> though? We need one for the kitchen since it’s not connected to the central heating.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Oh, right, I’ll bring that. Anything else?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Well, I have some dining room and living room furniture I can bring, so that should take care of most of the big stuff. You know what we do need though? Could you bring a <mark class="answer-highlight">toaster</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span>?</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> I actually don’t have one. It doesn’t come with the microwave?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> No, the landlord is only supplying the microwave. It would really help if you could bring one.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Okay, I’ll pick one up at the store. You know, I also have this cool antique rotary phone that would be a cool addition to the apartment. Sort of as decoration and utility.</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Oh cool! The only thing is, we’d have to put it in the <mark class="answer-highlight">kitchen</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span>, unless you want it in your room.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Why not put it in the living room?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> The living room is too loud to have a phone conversation. The noise sort of carries, so if one person is trying to watch TV or have friends over the person on the phone won’t be able to hear.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Hm, okay, well I guess kitchen it is then. Any other big things we need? That seems like everything</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> That’s all I can think of. And of course, move-in is</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> <mark class="answer-highlight">June 1st</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span>. I can’t wait. We’ll be able to watch the big game in our new apartment - it’s going to be awesome!</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> Yeah, we can move in in the morning and then <mark class="answer-highlight">Friday night</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span> we can sit back and cheer on Liverpool.</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> I have an <mark class="answer-highlight">exam</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span> in the morning, but will be done around 11 a.m. and can move in after. Wait... Liverpool? You’re joking, right? I thought you were a Manchester United fan?</p>
+                <p><strong class="text-blue-700 font-semibold">Peter:</strong> MAN U? No way! Liverpool all the way!</p>
+                <p><strong class="text-green-700 font-semibold">Jim:</strong> Oh no. I don’t know if I can live with a Liverpool fan...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATA ---
+    const vocabulary = {}; 
+
+    const explanations = {
+        s0_q1: "Jim's portion of the rent will be 80 pounds.",
+        s0_q2: "They agree to park the car in the garage.",
+        s0_q3: "They mention buying things at the supermarket because Jim works there.",
+        s0_q4: "They decide they should share petrol fees.",
+        s0_q5: "They note that a heater is needed in the kitchen.",
+        s0_q6: "Jim will buy a toaster at the store to complete the kitchen appliances.",
+        s0_q7: "The telephone is located in the kitchen.",
+        s0_q8: "The agreed move-in date is 1 June.",
+        s0_q9: "They plan to watch the game together on Friday evening.",
+        s0_q10: "Jim needs to take an exam in the morning before moving in."
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 1",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">Plan for Sharing Accommodation</h3>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 1-5</span>
+                                </div>
+                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    Complete the notes below. Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong> for each answer.
+                                </p>
+                                
+                                <div class="mb-5 text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm">
+                                    <span class="font-semibold text-blue-800">Example:</span> The discussion topic: <strong>lease for next year</strong>
+                                </div>
+                                
+                                <div class="space-y-6">
+                                    <div class="q-item" id="container-s0_q1">
+                                        <span class="font-bold text-gray-800">The total rent:</span><br>
+                                        <span class="pl-4 mt-1 inline-block">Peter £110 & Jim £ <strong class="text-blue-600 mx-1">1</strong><input type="text" name="s0_q1" class="fill-in-blank w-24" autocomplete="off"></span>
+                                    </div>
+                                    
+                                    <div class="q-item" id="container-s0_q2">
+                                        <span class="font-bold text-gray-800">Car parking:</span><br>
+                                        <span class="pl-4 mt-1 inline-block">in the <strong class="text-blue-600 mx-1">2</strong><input type="text" name="s0_q2" class="fill-in-blank w-32" autocomplete="off"></span>
+                                    </div>
+
+                                    <div class="q-item" id="container-s0_q3">
+                                        <span class="font-bold text-gray-800">A place to buy things:</span><br>
+                                        <span class="pl-4 mt-1 inline-block"><strong class="text-blue-600 mr-1">3</strong><input type="text" name="s0_q3" class="fill-in-blank w-40" autocomplete="off">, because Jim works there</span>
+                                    </div>
+
+                                    <div class="q-item" id="container-s0_q4">
+                                        <span class="font-bold text-gray-800">The fees they should share:</span><br>
+                                        <span class="pl-4 mt-1 inline-block"><strong class="text-blue-600 mr-1">4</strong><input type="text" name="s0_q4" class="fill-in-blank w-32" autocomplete="off"> fees</span>
+                                    </div>
+
+                                    <div>
+                                        <span class="font-bold text-gray-800">The appliances needed:</span>
+                                        <ul class="list-disc pl-9 space-y-3 text-gray-700 mt-2">
+                                            <li>The landlord will provide the microwave</li>
+                                            <li class="q-item" id="container-s0_q5">
+                                                The <strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-32" autocomplete="off"> is needed in the kitchen
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-16">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 6-10</span>
+                                </div>
+                                
+                                <div class="space-y-6 flex-1 mt-2">
+                                    <div>
+                                        <span class="font-bold text-gray-800">The appliances needed (continued):</span>
+                                        <ul class="list-disc pl-9 space-y-3 text-gray-700 mt-2">
+                                            <li>Peter will bring some dining room and living room furniture</li>
+                                            <li class="q-item" id="container-s0_q6">
+                                                Jim will buy a <strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-32" autocomplete="off"> at the store
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="q-item border-t pt-5 border-gray-100" id="container-s0_q7">
+                                        <span class="font-bold text-gray-800">Location of the telephone:</span><br>
+                                        <span class="pl-4 mt-1 inline-block">in the <strong class="text-blue-600 mx-1">7</strong><input type="text" name="s0_q7" class="fill-in-blank w-32" autocomplete="off"></span>
+                                    </div>
+                                    
+                                    <div class="q-item border-t pt-4 border-gray-100" id="container-s0_q8">
+                                        <span class="font-bold text-gray-800">Move-in date:</span><br>
+                                        <span class="pl-4 mt-1 inline-block"><strong class="text-blue-600 mr-1">8</strong><input type="text" name="s0_q8" class="fill-in-blank w-32" autocomplete="off"></span>
+                                    </div>
+                                    
+                                    <div class="q-item border-t pt-4 border-gray-100" id="container-s0_q9">
+                                        <span class="font-bold text-gray-800">Watching the game together:</span><br>
+                                        <span class="pl-4 mt-1 inline-block"><strong class="text-blue-600 mr-1">9</strong><input type="text" name="s0_q9" class="fill-in-blank w-40" autocomplete="off"></span>
+                                    </div>
+                                    
+                                    <div class="q-item border-t pt-4 border-gray-100" id="container-s0_q10">
+                                        <span class="font-bold text-gray-800">What Jim needs to do before the move-in:</span><br>
+                                        <span class="pl-4 mt-1 inline-block">take <strong class="text-blue-600 mx-1">10</strong><input type="text" name="s0_q10" class="fill-in-blank w-32" autocomplete="off"> in the morning</span>
+                                    </div>
+                                </div>
+                                <!-- Check Answers Button container gets appended here -->
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q1: "80", 
+        s0_q2: "garage", 
+        s0_q3: "supermarket", 
+        s0_q4: "petrol", 
+        s0_q5: "heater|a heater", 
+        s0_q6: "toaster", 
+        s0_q7: "kitchen", 
+        s0_q8: "1 june|june 1|june 1st|1st june", 
+        s0_q9: "friday evening|friday evenings", 
+        s0_q10: "exam|an exam"
+    };
+
+    // --- APPLICATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            // State
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 17,
+
+            // Elements
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+            
+            // Vocab Elements
+            vocabModal: document.getElementById('vocab-modal'),
+            vocabModalContent: document.getElementById('vocab-modal-content'),
+            closeVocabModalBtn: document.getElementById('close-vocab-modal'),
+            vocabWordEl: document.getElementById('vocab-word'),
+            vocabMeaningEl: document.getElementById('vocab-meaning'),
+            vocabPronunciationText: document.getElementById('vocab-pronunciation-text'),
+            playAudioBtn: document.getElementById('play-audio-btn'),
+
+            // Transcript Elements
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                // Font Size Events
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                // Vocab Modal Events
+                this.closeVocabModalBtn.addEventListener('click', () => this.closeVocabModal());
+                this.vocabModal.addEventListener('click', (e) => {
+                   if (e.target === this.vocabModal) this.closeVocabModal();
+                });
+
+                // Transcript Modal Events
+                this.transcriptBtn.addEventListener('click', () => this.openTranscriptModal());
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Input delegator for saving answers and UI styling
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                
+                // Vocab Words Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('vocab-word')) {
+                        const wordKey = e.target.dataset.word;
+                        this.openVocabModal(wordKey);
+                    }
+                });
+
+                // Check Buttons Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.range, e.target.dataset.prefix);
+                    }
+                });
+                
+                // Real Audio Pronunciation Event
+                this.playAudioBtn.addEventListener('click', () => {
+                   const word = this.vocabWordEl.textContent;
+                   if (!word) return;
+                   
+                   if ('speechSynthesis' in window) {
+                       window.speechSynthesis.cancel();
+                   }
+                   
+                   this.playAudioBtn.classList.remove('text-blue-600', 'bg-blue-50');
+                   this.playAudioBtn.classList.add('bg-green-500', 'text-white');
+                   
+                   if ('speechSynthesis' in window) {
+                       const utterance = new SpeechSynthesisUtterance(word);
+                       utterance.lang = 'en-GB'; 
+                       utterance.rate = 0.9; 
+                       
+                       utterance.onend = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       utterance.onerror = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       window.speechSynthesis.speak(utterance);
+                   } else {
+                       alert("Sorry, your browser doesn't support text-to-speech audio.");
+                       setTimeout(() => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       }, 500);
+                   }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 14) this.currentFontSize = 14;
+                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openVocabModal(wordKey) {
+                const data = vocabulary[wordKey];
+                if (data) {
+                    this.vocabWordEl.textContent = wordKey;
+                    this.vocabMeaningEl.textContent = data.meaning;
+                    this.vocabPronunciationText.textContent = data.phonetic || '';
+                    this.vocabModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        this.vocabModalContent.classList.remove('scale-95', 'opacity-0');
+                        this.vocabModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
+            },
+
+            closeVocabModal() {
+                if ('speechSynthesis' in window) {
+                   window.speechSynthesis.cancel();
+                }
+                this.vocabModalContent.classList.remove('scale-100', 'opacity-100');
+                this.vocabModalContent.classList.add('scale-95', 'opacity-0');
+                this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                
+                setTimeout(() => {
+                    this.vocabModal.classList.add('hidden');
+                }, 200);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            handleInput(e) {
+                if (e.target.name && e.target.type === 'text') {
+                    this.userAnswers[e.target.name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    inputs.forEach(input => {
+                        input.value = value;
+                    });
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, range, prefix) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    return;
+                }
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(exerciseKey, range, prefix);
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                // Load left pane and right pane
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+
+                // Section Tabs Logic
+                this.sectionTabsContainer.innerHTML = data.sections.map((sec, index) =>
+                    `<button class="px-4 py-1.5 ${index === this.currentSection ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="${index}">Section ${index + 1}</button>`
+                ).join('');
+
+                this.passageIndicator.textContent = `Section ${this.currentSection + 1} of ${data.sections.length}`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                // Check if current exercise was already validated
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
+                    }
+                });
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'note_completion', prefix: 's0_q', startQ: 1, endQ: 10, title: 'Note Completion (1-10)' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+                    const isChecked = this.answersChecked[exerciseKey];
+                    const buttonText = isChecked ? 'Reset Answers' : 'Check Answers';
+                    const buttonColor = isChecked ? 'bg-gray-800 hover:bg-gray-900' : 'bg-blue-600 hover:bg-blue-700';
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn ${buttonColor} text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            ${buttonText}
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(exerciseKey, range, prefix) {
+                const [startQ, endQ] = range.split('-').map(Number);
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    let questionContainer = document.getElementById(`container-${qId}`);
+
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    if (inputs.length === 0) continue;
+
+                    const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                    const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                    const input = inputs[0];
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        input.classList.add('correct-answer-text');
+                    } else {
+                        input.classList.add('incorrect-answer-text');
+                    }
+
+                    // Add Explanation
+                    if (explanations[qId] && questionContainer) {
+                         const existingExpl = document.getElementById(`expl-${qId}`);
+                         if (!existingExpl) {
+                            const explDiv = document.createElement('div');
+                            explDiv.id = `expl-${qId}`;
+                            explDiv.className = 'explanation-box mt-3 mb-4';
+                            const formattedAnswer = correctAnswersList[0].toUpperCase();
+                            explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                            questionContainer.insertAdjacentElement('afterend', explDiv);
+                         }
+                    }
+                }
+
+                // Update Button State
+                const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                if (btn) {
+                    btn.textContent = 'Reset Answers';
+                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
+                }
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        // Highlight within the left and right panes
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>

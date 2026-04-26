@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P1 Test 14</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 17px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* Header, Split Panes, Footer */
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        /* Typography Improvements */
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+        .reading-passage h3 {
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-transform: uppercase;
+        }
+
+        /* Question Styles */
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        /* Input Styles for Fill-in-the-blanks */
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        /* Answer Feedback Animations & Styles */
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Vocabulary Styles */
+        .vocab-word {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px dotted #93c5fd;
+            transition: all 0.2s ease-in-out;
+            padding: 0 2px;
+        }
+        .vocab-word:hover {
+            background-color: #dbeafe;
+            border-bottom-style: solid;
+            border-radius: 2px;
+        }
+
+        /* Highlight Tooltip */
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; /* green-200 */
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 5px 1fr;
+            }
+            .splitter {
+                cursor: row-resize;
+            }
+            .pane {
+                padding: 1rem;
+            }
+            .fill-in-blank {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 14</span></h1>
+        </div>
+        <div class="flex items-center space-x-5">
+            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+        </div>
+    </header>
+
+    <!-- Main Content (Left and Right Questions Split) -->
+    <main id="content-panes" class="content-panes">
+        <!-- Left Pane: Questions 1-5 -->
+        <div id="left-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+
+        <!-- Splitter -->
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+
+        <!-- Right Pane: Questions 6-10 -->
+        <div id="right-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+    </main>
+
+    <!-- Footer with Audio Player -->
+    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center space-x-6 w-full">
+                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 1 of 1
+                </div>
+                <!-- Custom Audio Player -->
+                <div class="w-full max-w-lg mt-1">
+                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/14.1.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2">
+                    <!-- Section buttons will be loaded here by JS -->
+                </div>
+                <button id="transcript-btn" class="px-4 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Transcript
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Highlight Tooltip -->
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<!-- Vocabulary Modal -->
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+        <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
+        <div class="flex items-center mb-6 border-b pb-4">
+            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        </div>
+        <div class="flex items-center mb-5">
+            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            </button>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+        </div>
+        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+    </div>
+</div>
+
+<!-- Transcript Modal -->
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
+            <div class="space-y-5 max-w-3xl mx-auto">
+                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Birmingham Exhibition</h4>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Good morning, you’re through to the events coordinator at the Birmingham City council, how may I help you?</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Hello there, my husband and I are interested in <span class="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1 uppercase tracking-wider">Example</span> purchasing tickets to the automobile exhibition, but I couldn’t ﬁnd many details about it on your website, and I was wondering whether you could provide me with some more information. Does it open in June?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Yes, of course, Madam. The exhibition will take place during <mark class="answer-highlight">July</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q1]</span>, and will showcase the history of automobiles from the very ﬁrst commercial car in the late 1800s all the way through to the present day.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Is the exhibition open for the duration of July?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, Madam, the exhibition will last <mark class="answer-highlight">3 days</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q2]</span>, from the 1st of July to the 3rd of July, and then the cars will be taken to another exhibition.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Okay. Does the exhibition focus on a certain manufacturer?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, it will showcase a wide range of manufacturers.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Wonderful! I’m ever so fed up of going to these shows and only seeing one manufacturer. Are there any opportunities to sit in or even drive the cars?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> There will be many opportunities for you to sit in the cars; however, some of the cars will only be available to observe. We are yet to be told whether any of the antique cars will be available to drive, however there will certainly be an opportunity to <mark class="answer-highlight">test driving</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q3]</span> some of the more modern cars on a purpose-built track.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> That sounds like great fun! I mustn’t forget to bring my camera, or my husband will never forgive me!</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I’m afraid to say that <span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1">Q4</span> <mark class="answer-highlight">cameras</mark> are actually strictly not allowed to bring into the exhibition. There will however be a section where a professional photographer will be available to take photos of you sitting in a car in period clothing.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Well, that sounds like it could be fun, but I assume the photos won’t be free.</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> On the contrary, one free photograph is included within every ticket, but each photo after this will cost £5.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> That’s a nice surprise, not many things are free anymore. I’ve been asking around about the ticket prices, but I haven’t yet had a deﬁnite answer. Is it correct that the tickets are £100 whether you buy them now or on arrival?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I’m afraid not. If you buy the ticket in advance the price is £<mark class="answer-highlight">110</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span>, but it’s £165 on the door.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Oh goodness! I suppose I’d best pay for them now then. Is it possible to buy tickets from you now over the phone?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Yes, of course, Madam. I’ll transfer you to the Box Oﬃce Manager, Mark <mark class="answer-highlight">Edgeworth</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span>, that’s E-D-G-E-W-O-R-T-H, and he will probably need to take your credit card details and some personal details.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Yes, that’s ﬁne. Before you transfer me, I just need to ask a few more questions. Will the exhibition be held in the Birmingham Exhibition Centre? I think that’s where I went last time.</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, Madam, the Birmingham Exhibition Centre is currently undergoing some renovations, so this year all exhibitions will be held in the <mark class="answer-highlight">Summer</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span> Palace.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Summer Palace? I’m not entirely sure where that is.</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Well, it’s not too far from <mark class="answer-highlight">city centre</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span>. Once you’re in the centre, you should be able to ﬁnd signs for the palace. If not, most people in Birmingham will be able to direct you.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Hmm...neither my husband nor I am particularly good with directions. Is there anywhere I can find this information on the Internet?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Our website will give you an address. Perhaps you could visit <span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1">Q9</span> www.<mark class="answer-highlight">directions</mark>.com for more detailed information, and they should be able to provide you with step-by-step instructions.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Okay and is this the best way to contact you, by phone?</p>
+
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I think the most convenient way to contact us is <mark class="answer-highlight">enquiring online</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span>, which is much simpler than having to dial various diﬀerent numbers to reach the right person! Unless you have any more questions, I’ll transfer you now.</p>
+
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> No, that’s great! Thank you for your help.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATA ---
+    const vocabulary = {}; // Left empty for this specific test
+
+    const explanations = {
+        s0_q1: "The speaker mentions the exhibition will open in July.",
+        s0_q2: "The duration of the exhibition is specified as three days.",
+        s0_q3: "Some cars are available to observe, and others are specifically for test driving.",
+        s0_q4: "Taking a camera into the museum is prohibited.",
+        s0_q5: "The ticket price when purchased in advance is £110.",
+        s0_q6: "The Box Office Manager's name is given as Mark Edgeworth.",
+        s0_q7: "This year, the event is being held in the Summer Palace.",
+        s0_q8: "The location is described as being not far from the city centre.",
+        s0_q9: "The website provided for further details is www.directions.com.",
+        s0_q10: "The best way to contact them is by enquiring online."
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 1",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">Birmingham Exhibition</h3>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 1-5</span>
+                                </div>
+                                <p class="mb-6 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    Complete the notes below. Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong> for each answer.
+                                </p>
+                                
+                                <ul class="space-y-4 list-disc pl-5">
+                                    <li class="q-item" id="container-s0_q1">
+                                        Open in: <strong class="text-blue-600 mx-1">1</strong><input type="text" name="s0_q1" class="fill-in-blank w-32" autocomplete="off">.
+                                    </li>
+                                    <li class="q-item" id="container-s0_q2">
+                                        Length of exhibition: <strong class="text-blue-600 mx-1">2</strong><input type="text" name="s0_q2" class="fill-in-blank w-32" autocomplete="off">.
+                                    </li>
+                                    <li class="py-1 text-gray-700">A wide range of manufacturers will be showcased.</li>
+                                    <li class="q-item" id="container-s0_q3">
+                                        Some cars are available to observe and others are for <strong class="text-blue-600 mx-1">3</strong><input type="text" name="s0_q3" class="fill-in-blank w-32" autocomplete="off">.
+                                    </li>
+                                    <li class="q-item" id="container-s0_q4">
+                                        The <strong class="text-blue-600 mx-1">4</strong><input type="text" name="s0_q4" class="fill-in-blank w-32" autocomplete="off"> is prohibited to take into the museum.
+                                    </li>
+                                    <li class="py-1 text-gray-700">Every ticket includes one free photo.</li>
+                                    <li class="q-item" id="container-s0_q5">
+                                        Price of the ticket: £ <strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-24" autocomplete="off"> (in advance).
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-16"> <!-- Padding to match header area on the left pane -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 6-10</span>
+                                </div>
+                                
+                                <ul class="space-y-5 list-disc pl-5 flex-1 mt-2">
+                                    <li class="q-item" id="container-s0_q6">
+                                        Transfer to Mark <strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-40" autocomplete="off"> (Box Office Manager).
+                                    </li>
+                                    <li class="q-item" id="container-s0_q7">
+                                        Held in the <strong class="text-blue-600 mx-1">7</strong><input type="text" name="s0_q7" class="fill-in-blank w-32" autocomplete="off"> Palace this year.
+                                    </li>
+                                    <li class="q-item" id="container-s0_q8">
+                                        Not far from <strong class="text-blue-600 mx-1">8</strong><input type="text" name="s0_q8" class="fill-in-blank w-40" autocomplete="off">.
+                                    </li>
+                                    <li class="q-item" id="container-s0_q9">
+                                        Website: www.<strong class="text-blue-600 mx-1">9</strong><input type="text" name="s0_q9" class="fill-in-blank w-36 text-center" autocomplete="off">.com.
+                                    </li>
+                                    <li class="q-item" id="container-s0_q10">
+                                        Best way to contact: <strong class="text-blue-600 mx-1">10</strong><input type="text" name="s0_q10" class="fill-in-blank w-40" autocomplete="off">.
+                                    </li>
+                                </ul>
+                                <!-- Check Answers Button container gets appended here -->
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q1: "july", 
+        s0_q2: "three days|3 days", 
+        s0_q3: "test driving", 
+        s0_q4: "camera|cameras", 
+        s0_q5: "110", 
+        s0_q6: "edgeworth", 
+        s0_q7: "summer", 
+        s0_q8: "city centre|city center|the city centre", 
+        s0_q9: "directions", 
+        s0_q10: "enquiring online|inquiring online"
+    };
+
+    // --- APPLICATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            // State
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 17,
+
+            // Elements
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+            
+            // Vocab Elements
+            vocabModal: document.getElementById('vocab-modal'),
+            vocabModalContent: document.getElementById('vocab-modal-content'),
+            closeVocabModalBtn: document.getElementById('close-vocab-modal'),
+            vocabWordEl: document.getElementById('vocab-word'),
+            vocabMeaningEl: document.getElementById('vocab-meaning'),
+            vocabPronunciationText: document.getElementById('vocab-pronunciation-text'),
+            playAudioBtn: document.getElementById('play-audio-btn'),
+
+            // Transcript Elements
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                // Font Size Events
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                // Vocab Modal Events
+                this.closeVocabModalBtn.addEventListener('click', () => this.closeVocabModal());
+                this.vocabModal.addEventListener('click', (e) => {
+                   if (e.target === this.vocabModal) this.closeVocabModal();
+                });
+
+                // Transcript Modal Events
+                this.transcriptBtn.addEventListener('click', () => this.openTranscriptModal());
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Input delegator for saving answers and UI styling
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                
+                // Vocab Words Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('vocab-word')) {
+                        const wordKey = e.target.dataset.word;
+                        this.openVocabModal(wordKey);
+                    }
+                });
+
+                // Check Buttons Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.range, e.target.dataset.prefix);
+                    }
+                });
+                
+                // Real Audio Pronunciation Event
+                this.playAudioBtn.addEventListener('click', () => {
+                   const word = this.vocabWordEl.textContent;
+                   if (!word) return;
+                   
+                   if ('speechSynthesis' in window) {
+                       window.speechSynthesis.cancel();
+                   }
+                   
+                   this.playAudioBtn.classList.remove('text-blue-600', 'bg-blue-50');
+                   this.playAudioBtn.classList.add('bg-green-500', 'text-white');
+                   
+                   if ('speechSynthesis' in window) {
+                       const utterance = new SpeechSynthesisUtterance(word);
+                       utterance.lang = 'en-GB'; 
+                       utterance.rate = 0.9; 
+                       
+                       utterance.onend = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       utterance.onerror = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       window.speechSynthesis.speak(utterance);
+                   } else {
+                       alert("Sorry, your browser doesn't support text-to-speech audio.");
+                       setTimeout(() => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       }, 500);
+                   }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 14) this.currentFontSize = 14;
+                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openVocabModal(wordKey) {
+                const data = vocabulary[wordKey];
+                if (data) {
+                    this.vocabWordEl.textContent = wordKey;
+                    this.vocabMeaningEl.textContent = data.meaning;
+                    this.vocabPronunciationText.textContent = data.phonetic || '';
+                    this.vocabModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        this.vocabModalContent.classList.remove('scale-95', 'opacity-0');
+                        this.vocabModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
+            },
+
+            closeVocabModal() {
+                if ('speechSynthesis' in window) {
+                   window.speechSynthesis.cancel();
+                }
+                this.vocabModalContent.classList.remove('scale-100', 'opacity-100');
+                this.vocabModalContent.classList.add('scale-95', 'opacity-0');
+                this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                
+                setTimeout(() => {
+                    this.vocabModal.classList.add('hidden');
+                }, 200);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            handleInput(e) {
+                if (e.target.name && e.target.type === 'text') {
+                    this.userAnswers[e.target.name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    inputs.forEach(input => {
+                        input.value = value;
+                    });
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, range, prefix) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    return;
+                }
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(exerciseKey, range, prefix);
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                // Load left pane and right pane
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+
+                // Section Tabs Logic
+                this.sectionTabsContainer.innerHTML = data.sections.map((sec, index) =>
+                    `<button class="px-4 py-1.5 ${index === this.currentSection ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="${index}">Section ${index + 1}</button>`
+                ).join('');
+
+                this.passageIndicator.textContent = `Section ${this.currentSection + 1} of ${data.sections.length}`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                // Check if current exercise was already validated
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
+                    }
+                });
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'note_completion', prefix: 's0_q', startQ: 1, endQ: 10, title: 'Note Completion (1-10)' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+                    const isChecked = this.answersChecked[exerciseKey];
+                    const buttonText = isChecked ? 'Reset Answers' : 'Check Answers';
+                    const buttonColor = isChecked ? 'bg-gray-800 hover:bg-gray-900' : 'bg-blue-600 hover:bg-blue-700';
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn ${buttonColor} text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            ${buttonText}
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(exerciseKey, range, prefix) {
+                const [startQ, endQ] = range.split('-').map(Number);
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    let questionContainer = document.getElementById(`container-${qId}`);
+
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    if (inputs.length === 0) continue;
+
+                    const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                    const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                    const input = inputs[0];
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        input.classList.add('correct-answer-text');
+                    } else {
+                        input.classList.add('incorrect-answer-text');
+                    }
+
+                    // Add Explanation
+                    if (explanations[qId] && questionContainer) {
+                         const existingExpl = document.getElementById(`expl-${qId}`);
+                         if (!existingExpl) {
+                            const explDiv = document.createElement('div');
+                            explDiv.id = `expl-${qId}`;
+                            explDiv.className = 'explanation-box mt-3 mb-4';
+                            const formattedAnswer = correctAnswersList[0].toUpperCase();
+                            explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                            questionContainer.insertAdjacentElement('afterend', explDiv);
+                         }
+                    }
+                }
+
+                // Update Button State
+                const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                if (btn) {
+                    btn.textContent = 'Reset Answers';
+                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
+                }
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        // Highlight within the left and right panes
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
