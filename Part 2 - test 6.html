@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P2 Test 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 17px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* Header, Split Panes, Footer */
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        /* Typography Improvements */
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+        .reading-passage h3 {
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-transform: uppercase;
+        }
+
+        /* Question Styles */
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        /* Input Styles for Fill-in-the-blanks */
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank.single-letter {
+            width: 60px;
+            text-transform: uppercase;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        /* Answer Feedback Animations & Styles */
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Vocabulary Styles */
+        .vocab-word {
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px dotted #93c5fd;
+            transition: all 0.2s ease-in-out;
+            padding: 0 2px;
+        }
+        .vocab-word:hover {
+            background-color: #dbeafe;
+            border-bottom-style: solid;
+            border-radius: 2px;
+        }
+
+        /* Highlight Tooltip */
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; /* green-200 */
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 5px 1fr;
+            }
+            .splitter {
+                cursor: row-resize;
+            }
+            .pane {
+                padding: 1rem;
+            }
+            .fill-in-blank {
+                width: 100px;
+            }
+            .fill-in-blank.single-letter {
+                width: 50px;
+            }
+            table th, table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P2 Test 6</span></h1>
+        </div>
+        <div class="flex items-center space-x-5">
+            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+        </div>
+    </header>
+
+    <!-- Main Content (Left and Right Questions Split) -->
+    <main id="content-panes" class="content-panes">
+        <!-- Left Pane: Questions 11-15 -->
+        <div id="left-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+
+        <!-- Splitter -->
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+
+        <!-- Right Pane: Questions 16-20 -->
+        <div id="right-pane" class="pane">
+            <!-- Content will be loaded here by JS -->
+        </div>
+    </main>
+
+    <!-- Footer with Audio Player -->
+    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center space-x-6 w-full">
+                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 2 of 4
+                </div>
+                <!-- Custom Audio Player -->
+                <div class="w-full max-w-lg mt-1">
+                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/9.2.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2">
+                    <!-- Section buttons will be loaded here by JS -->
+                </div>
+                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Transcript
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Highlight Tooltip -->
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<!-- Vocabulary Modal -->
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+        <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
+        <div class="flex items-center mb-6 border-b pb-4">
+            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        </div>
+        <div class="flex items-center mb-5">
+            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            </button>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+        </div>
+        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+    </div>
+</div>
+
+<!-- Transcript Modal -->
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
+            <div class="space-y-5 max-w-3xl mx-auto">
+                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Improvement Plan</h4>
+
+                <p>Thank you all for coming to our community meeting.</p>
+                <p>As you know, we are excited to unveil our improvement plan as we look forward to the influx of tourists in the summer months.</p>
+                <p>I’ll start with a quick overview of the main points of interest in the area for anyone who may not quite know his or her way around yet, and then I’ll get into the improvements made.</p>
+                <p>First off is my favourite, <mark class="answer-highlight">the Science Museum, which is on the corner of Saint George Road</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q11]</span>.</p>
+                <p>If you have not visited it yet, I encourage you to go before the busy season.</p>
+                <p>It is absolutely spectacular - there is even a flight simulator you can try out!</p>
+                <p><mark class="answer-highlight">Just west of the Science Museum is the National History Museum</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q12]</span>.</p>
+                <p>It’s a site not to be missed as well, with each floor devoted to a different era in our nation’s history.</p>
+                <p>There are special exhibits for children with interactive games and fun history lessons, too.</p>
+                <p>If you’re looking for <mark class="answer-highlight">parking, it is available on the intersection of Queen Street and South King Street in the Car Park</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q13]</span>.</p>
+                <p>Standard hourly and daily rates do apply.</p>
+                <p>The best place for souvenirs is the <mark class="answer-highlight">Shopping Mall</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q14]</span>, though it gets extremely busy during peak times.</p>
+                <p>You can get there from the tube, or the <mark class="answer-highlight">entrance on Timber Road, just south of Cornwell Road</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q14]</span>.</p>
+                <p>This area has students everywhere, usually from the <mark class="answer-highlight">Primary School across the street from the Shopping Mall</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q15]</span>.</p>
+                <p>Classes often take field trips and engage in guided tours through the area.</p>
+                <p>So that’s the overview of the main sites and hopefully by now I’ve given you a general idea of the area.</p>
+                <p>Now I’m going to outline the improvements we have made in our efforts to make the experience even better for each and every one of our visitors.</p>
+                <p>You probably noticed when you first drove into the Car Park this morning, that there is now <mark class="answer-highlight">additional signage</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q16]</span> to help avoid confusion.</p>
+                <p>The directions were not entirely clear at first, so we have increased the number of one-way signs indicating the correct direction of traffic flow.</p>
+                <p>Not far from there, in line with our mission of giving back to the community, we <mark class="answer-highlight">constructed a brand new playground</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q17]</span> for the Primary School.</p>
+                <p>It is really something to be excited for - the equipment is state-of-the-art and includes swings, a small climbing wall, and even an obstacle course.</p>
+                <p>Now we’ll head north and take a look at the Science Museum.</p>
+                <p>In response to our feedback from past visitors to the museum, there is now <mark class="answer-highlight">free information available</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q18]</span> outlining not only upcoming IMAX showings, but also natural wonders like meteor showers, eclipses, and other cool natural events.</p>
+                <p>The Science Museum isn’t the only Museum improving the experience of its visitors.</p>
+                <p>The National History Museum has <mark class="answer-highlight">added an entire new wing to its facility</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q19]</span> to accommodate the large crowds of people gathering to see the Civil War exhibit, inventions timeline exhibit, and other wonderful sections of the museum.</p>
+                <p>The increase in space will definitely give a more calm, comfortable experience for visitors.</p>
+                <p>And finally, remember when there was actually a line at the mall entrance from the Tube Station?</p>
+                <p>It was terrible trying to get anywhere from the Tube because foot traffic got so backed up sometimes.</p>
+                <p>We have addressed that by <mark class="answer-highlight">adding another entry point</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q20]</span> into the mall from the other end of the platform to disperse the crowd.</p>
+                <p>So those are the major improvements we have made.</p>
+                <p>Clearly having too many people that want to visit and enjoy what our community has to offer the public is a good problem to have, and I am confident that we have made the changes necessary to accommodate the growing interest in the area.</p>
+                <p>As always, we welcome any questions, comments, or concerns about the new improvements plan.</p>
+                <p>In a few minutes I will open up the floor for questions but you can also contact me or any other board member by email or through the city website.</p>
+                <p>Thank you for coming, and I now encourage you to stay for the Questions and Answers panel occurring between now and 10.30...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
+    </div>
+</div>
+
+<script>
+    // --- DATA ---
+    const vocabulary = {}; 
+
+    const explanations = {
+        s0_q11: "The speaker states: 'First off is my favourite, the Science Museum, which is on the corner of Saint George Road.' Looking at the map, B is on the corner of Saint George Road.",
+        s0_q12: "The speaker mentions: 'Just west of the Science Museum is the National History Museum.' West of B on the map is A.",
+        s0_q13: "The speaker states: '...parking, it is available on the intersection of Queen Street and South King Street in the Car Park.' E is at this intersection.",
+        s0_q14: "The speaker guides: 'Shopping Mall... entrance on Timber Road, just south of Cornwell Road.' C matches this description.",
+        s0_q15: "The speaker notes: '...Primary School across the street from the Shopping Mall.' Across Timber Road from C is D.",
+        s0_q16: "The speaker says regarding the Car Park: '...there is now additional signage to help avoid confusion.'",
+        s0_q17: "The speaker mentions regarding the Primary School: '...we constructed a brand new playground...' This matches 'New structure' (G).",
+        s0_q18: "The speaker says regarding the Science Museum: '...there is now free information available outlining not only upcoming IMAX showings...'",
+        s0_q19: "The speaker explains regarding the National History Museum: '...has added an entire new wing to its facility to accommodate the large crowds...' This matches 'Increase in size' (D).",
+        s0_q20: "The speaker states regarding the Shopping Mall: 'We have addressed that by adding another entry point into the mall...' This matches 'New entrance' (A)."
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 2",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">Improvement Plan</h3>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 11-15</span>
+                                </div>
+                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    Label the map below. Write the correct letter, <strong>A-E</strong>, next to questions 11-15.
+                                </p>
+                                
+                                <div class="space-y-6 text-gray-800 text-center">
+                                    <img src="https://ielts-up.com/images/9.2.png" alt="Map of the Area" class="w-full max-w-md mx-auto mb-6 border border-gray-200 shadow-sm rounded-lg object-contain">
+                                    
+                                    <div class="space-y-4 max-w-xs mx-auto">
+                                        <div class="q-item flex items-center justify-between" id="container-s0_q11">
+                                            <div class="flex items-center">
+                                                <strong class="text-blue-600 mr-3 w-6 text-left">11</strong> 
+                                                <span class="font-semibold text-gray-700">Science Museum</span>
+                                            </div>
+                                            <input type="text" name="s0_q11" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="q-item flex items-center justify-between" id="container-s0_q12">
+                                            <div class="flex items-center">
+                                                <strong class="text-blue-600 mr-3 w-6 text-left">12</strong> 
+                                                <span class="font-semibold text-gray-700">National History Museum</span>
+                                            </div>
+                                            <input type="text" name="s0_q12" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="q-item flex items-center justify-between" id="container-s0_q13">
+                                            <div class="flex items-center">
+                                                <strong class="text-blue-600 mr-3 w-6 text-left">13</strong> 
+                                                <span class="font-semibold text-gray-700">Car Park</span>
+                                            </div>
+                                            <input type="text" name="s0_q13" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="q-item flex items-center justify-between" id="container-s0_q14">
+                                            <div class="flex items-center">
+                                                <strong class="text-blue-600 mr-3 w-6 text-left">14</strong> 
+                                                <span class="font-semibold text-gray-700">Shopping Mall</span>
+                                            </div>
+                                            <input type="text" name="s0_q14" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="q-item flex items-center justify-between" id="container-s0_q15">
+                                            <div class="flex items-center">
+                                                <strong class="text-blue-600 mr-3 w-6 text-left">15</strong> 
+                                                <span class="font-semibold text-gray-700">Primary School</span>
+                                            </div>
+                                            <input type="text" name="s0_q15" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-16">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 16-20</span>
+                                </div>
+                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    What is the improvement of each main point of interest in the area?<br><br>
+                                    Choose <strong>FIVE</strong> answers from the box and write the correct letter, <strong>A-G</strong>, next to questions 16-20.
+                                </p>
+                                
+                                <div class="bg-blue-50 border border-blue-100 rounded-lg p-5 mb-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-2 text-gray-700">
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">A</strong> <span>New entrance</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">B</strong> <span>Free lunch provided</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">C</strong> <span>Free information provided</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">D</strong> <span>Increase in size</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">E</strong> <span>Additional signs</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">F</strong> <span>New exhibitions</span></div>
+                                        <div class="flex items-center space-x-2"><strong class="bg-white text-blue-800 w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-sm">G</strong> <span>New structure</span></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4 max-w-sm mx-auto text-gray-800 w-full">
+                                    <div class="q-item flex items-center justify-between" id="container-s0_q16">
+                                        <div class="flex items-center">
+                                            <strong class="text-blue-600 mr-3 w-6">16</strong> 
+                                            <span class="font-semibold text-gray-700">Car Park</span>
+                                        </div>
+                                        <input type="text" name="s0_q16" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="q-item flex items-center justify-between" id="container-s0_q17">
+                                        <div class="flex items-center">
+                                            <strong class="text-blue-600 mr-3 w-6">17</strong> 
+                                            <span class="font-semibold text-gray-700">Primary School</span>
+                                        </div>
+                                        <input type="text" name="s0_q17" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="q-item flex items-center justify-between" id="container-s0_q18">
+                                        <div class="flex items-center">
+                                            <strong class="text-blue-600 mr-3 w-6">18</strong> 
+                                            <span class="font-semibold text-gray-700">Science Museum</span>
+                                        </div>
+                                        <input type="text" name="s0_q18" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="q-item flex items-center justify-between" id="container-s0_q19">
+                                        <div class="flex items-center">
+                                            <strong class="text-blue-600 mr-3 w-6">19</strong> 
+                                            <span class="font-semibold text-gray-700">National History Museum</span>
+                                        </div>
+                                        <input type="text" name="s0_q19" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="q-item flex items-center justify-between" id="container-s0_q20">
+                                        <div class="flex items-center">
+                                            <strong class="text-blue-600 mr-3 w-6">20</strong> 
+                                            <span class="font-semibold text-gray-700">Shopping Mall</span>
+                                        </div>
+                                        <input type="text" name="s0_q20" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                </div>
+                                <!-- Check Answers Button container gets appended here -->
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q11: "b", 
+        s0_q12: "a", 
+        s0_q13: "e", 
+        s0_q14: "c", 
+        s0_q15: "d", 
+        s0_q16: "e", 
+        s0_q17: "g", 
+        s0_q18: "c", 
+        s0_q19: "d",
+        s0_q20: "a"
+    };
+
+    // --- APPLICATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            // State
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 17,
+
+            // Elements
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+            vocabModal: document.getElementById('vocab-modal'),
+            vocabModalContent: document.getElementById('vocab-modal-content'),
+            closeVocabModalBtn: document.getElementById('close-vocab-modal'),
+            vocabWordEl: document.getElementById('vocab-word'),
+            vocabMeaningEl: document.getElementById('vocab-meaning'),
+            vocabPronunciationText: document.getElementById('vocab-pronunciation-text'),
+            playAudioBtn: document.getElementById('play-audio-btn'),
+
+            // Transcript Elements
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            // Alert Elements
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                // Font Size Events
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                // Vocab Modal Events
+                this.closeVocabModalBtn.addEventListener('click', () => this.closeVocabModal());
+                this.vocabModal.addEventListener('click', (e) => {
+                   if (e.target === this.vocabModal) this.closeVocabModal();
+                });
+
+                // Transcript Modal Events
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Alert Modal Events
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
+                });
+
+                // Input delegator for saving answers and UI styling
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                
+                // Vocab Words Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('vocab-word')) {
+                        const wordKey = e.target.dataset.word;
+                        this.openVocabModal(wordKey);
+                    }
+                });
+
+                // Check Buttons Event Delegation
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.range, e.target.dataset.prefix);
+                    }
+                });
+                
+                // Real Audio Pronunciation Event
+                this.playAudioBtn.addEventListener('click', () => {
+                   const word = this.vocabWordEl.textContent;
+                   if (!word) return;
+                   
+                   if ('speechSynthesis' in window) {
+                       window.speechSynthesis.cancel();
+                   }
+                   
+                   this.playAudioBtn.classList.remove('text-blue-600', 'bg-blue-50');
+                   this.playAudioBtn.classList.add('bg-green-500', 'text-white');
+                   
+                   if ('speechSynthesis' in window) {
+                       const utterance = new SpeechSynthesisUtterance(word);
+                       utterance.lang = 'en-GB'; 
+                       utterance.rate = 0.9; 
+                       
+                       utterance.onend = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       utterance.onerror = () => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       };
+                       
+                       window.speechSynthesis.speak(utterance);
+                   } else {
+                       alert("Sorry, your browser doesn't support text-to-speech audio.");
+                       setTimeout(() => {
+                           this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                           this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                       }, 500);
+                   }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 14) this.currentFontSize = 14;
+                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openVocabModal(wordKey) {
+                const data = vocabulary[wordKey];
+                if (data) {
+                    this.vocabWordEl.textContent = wordKey;
+                    this.vocabMeaningEl.textContent = data.meaning;
+                    this.vocabPronunciationText.textContent = data.phonetic || '';
+                    this.vocabModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        this.vocabModalContent.classList.remove('scale-95', 'opacity-0');
+                        this.vocabModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
+            },
+
+            closeVocabModal() {
+                if ('speechSynthesis' in window) {
+                   window.speechSynthesis.cancel();
+                }
+                this.vocabModalContent.classList.remove('scale-100', 'opacity-100');
+                this.vocabModalContent.classList.add('scale-95', 'opacity-0');
+                this.playAudioBtn.classList.add('text-blue-600', 'bg-blue-50');
+                this.playAudioBtn.classList.remove('bg-green-500', 'text-white');
+                
+                setTimeout(() => {
+                    this.vocabModal.classList.add('hidden');
+                }, 200);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
+
+            handleInput(e) {
+                if (e.target.name && e.target.type === 'text') {
+                    this.userAnswers[e.target.name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    inputs.forEach(input => {
+                        input.value = value;
+                    });
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, range, prefix) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    this.updateTranscriptState();
+                    return;
+                }
+
+                // Check if all blanks are filled
+                const [startQ, endQ] = range.split('-').map(Number);
+                let allAnswered = true;
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    const answer = (this.userAnswers[qId] || "").trim();
+                    if (answer === "") {
+                        allAnswered = false;
+                        break;
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks before checking your answers.");
+                    return;
+                }
+
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(exerciseKey, range, prefix);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                // Load left pane and right pane
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+
+                // Section Tabs Logic
+                this.sectionTabsContainer.innerHTML = `<button class="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="0">Section 2</button>`;
+
+                this.passageIndicator.textContent = `Section 2 of 4`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                // Check if current exercise was already validated
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
+                    }
+                });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'all_questions', prefix: 's0_q', startQ: 11, endQ: 20, title: 'Questions 11-20' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            Check Answers
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(exerciseKey, range, prefix) {
+                const [startQ, endQ] = range.split('-').map(Number);
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    let questionContainer = document.getElementById(`container-${qId}`);
+
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    if (inputs.length === 0) continue;
+
+                    const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                    const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                    const input = inputs[0];
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        input.classList.add('correct-answer-text');
+                    } else {
+                        input.classList.add('incorrect-answer-text');
+                    }
+
+                    // Add Explanation
+                    if (explanations[qId] && questionContainer) {
+                         const existingExpl = document.getElementById(`expl-${qId}`);
+                         if (!existingExpl) {
+                            const explDiv = document.createElement('div');
+                            explDiv.id = `expl-${qId}`;
+                            explDiv.className = 'explanation-box mt-3 mb-4';
+                            const formattedAnswer = correctAnswersList[0].toUpperCase();
+                            explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                            questionContainer.insertAdjacentElement('afterend', explDiv);
+                         }
+                    }
+                }
+
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        let allAnswered = true;
+                        for (let i = ex.startQ; i <= ex.endQ; i++) {
+                            const qId = `${ex.prefix}${i}`;
+                            const answer = (this.userAnswers[qId] || "").trim();
+                            if (answer === "") {
+                                allAnswered = false;
+                                break;
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        // Highlight within the left and right panes
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
