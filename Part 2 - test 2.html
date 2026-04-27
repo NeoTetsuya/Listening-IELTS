@@ -830,8 +830,13 @@
             
             changeFontSize(delta) {
                 this.currentFontSize += delta;
-                if (this.currentFontSize < 14) this.currentFontSize = 14;
-                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                if (this.currentFontSize < 12) this.currentFontSize = 12;
+                if (this.currentFontSize > 24) this.currentFontSize = 24;
+                
+                // Adjust the root element's font size to scale all Tailwind 'rem' utilities
+                document.documentElement.style.fontSize = `${this.currentFontSize}px`;
+                
+                // Keep the custom property for any non-Tailwind elements
                 document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
             },
 
