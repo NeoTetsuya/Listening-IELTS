@@ -170,22 +170,37 @@
             color: #166534;
         }
 
+        /* Responsive Design Overrides */
         @media (max-width: 768px) {
             .content-panes {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr 5px 1fr;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; /* Allow entire container to scroll naturally */
             }
             .splitter {
-                cursor: row-resize;
+                display: none; /* Hide splitter on mobile */
             }
             .pane {
                 padding: 1rem;
+                overflow-y: visible; /* Disable individual scrolling */
+                height: auto;
+            }
+            #left-pane {
+                border-bottom: 2px dashed #cbd5e1;
+                padding-bottom: 2rem;
+            }
+            /* Adjust inner padding of questions */
+            .bg-white.p-6 {
+                padding: 1.25rem !important; 
             }
             .fill-in-blank {
-                width: 120px;
+                width: 100px;
             }
             .fill-in-blank.single-letter {
                 width: 50px;
+            }
+            table th, table td {
+                padding: 0.5rem;
             }
         }
     </style>
@@ -194,21 +209,24 @@
 
 <div id="test-container" class="ielts-container">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 text-white p-2 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center gap-2 sm:space-x-3">
+            <div class="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
                 </svg>
             </div>
+            <!-- Full title for desktop -->
             <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P4 Test 3</span></h1>
+            <!-- Short title for mobile -->
+            <h1 class="text-base font-bold text-gray-800 sm:hidden">Listening <span class="text-blue-600">P4 T3</span></h1>
         </div>
-        <div class="flex items-center space-x-5">
-            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
-                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
-                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+        <div class="flex items-center gap-2 sm:space-x-5">
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Increase Font Size">A+</button>
             </div>
-            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+            <div class="hidden sm:block text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-2 sm:px-3 py-1 rounded-full">Part 4</div>
         </div>
     </header>
 
@@ -231,44 +249,45 @@
     </main>
 
     <!-- Footer with Audio Player -->
-    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div class="flex items-center space-x-6 w-full">
-                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+    <footer class="bg-white border-t border-gray-200 px-3 sm:px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto gap-2">
+            <div class="flex items-center gap-2 sm:space-x-6 w-full min-w-0">
+                <div id="passage-indicator" class="hidden md:block text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
                     Section 4 of 4
                 </div>
                 <!-- Custom Audio Player -->
-                <div class="w-full max-w-lg mt-1">
-                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
-                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
-                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
-                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                <div class="w-full max-w-lg mt-1 sm:mt-0">
+                    <div class="flex items-center space-x-2 sm:space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-2 sm:px-4 py-2 h-10 sm:h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-3 h-3 sm:w-4 sm:h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
                         </button>
                         
                         <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
-                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                            <div class="w-full h-1.5 sm:h-2 bg-gray-200 rounded-full group-hover:h-2.5 transition-all duration-200 relative overflow-hidden">
                                 <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
                             </div>
                         </div>
                         
-                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                        <div class="flex items-center text-[10px] sm:text-xs font-semibold text-slate-500 shrink-0 w-[3.5rem] sm:w-[4.5rem] justify-end tabular-nums tracking-tight">
                             <span id="current-time" class="text-blue-700">0:00</span>
-                            <span class="mx-1 text-slate-300">/</span>
+                            <span class="mx-0.5 sm:mx-1 text-slate-300">/</span>
                             <span id="total-time">0:00</span>
                         </div>
                         <audio id="custom-audio-element" src="https://ielts-up.com/listening/12.4.mp3" preload="metadata"></audio>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-4 shrink-0">
-                <div id="section-tabs" class="flex space-x-2">
+            <div class="flex items-center gap-2 sm:space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2 hidden sm:flex">
                     <!-- Section buttons will be loaded here by JS -->
                 </div>
-                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="transcript-btn" class="px-3 sm:px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Transcript
+                    <span class="sm:hidden">Script</span>
+                    <span class="hidden sm:inline">Transcript</span>
                 </button>
             </div>
         </div>
@@ -279,37 +298,37 @@
 <div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
 
 <!-- Vocabulary Modal -->
-<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
         <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
-        <div class="flex items-center mb-6 border-b pb-4">
-            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        <div class="flex items-center mb-6 border-b pb-4 mt-2">
+            <h3 id="vocab-word" class="text-2xl sm:text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
         </div>
         <div class="flex items-center mb-5">
-            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            <button id="play-audio-btn" class="flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100 shrink-0" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
             </button>
-            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-base sm:text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
         </div>
-        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+        <p id="vocab-meaning" class="text-gray-700 text-base sm:text-lg leading-relaxed"></p>
     </div>
 </div>
 
 <!-- Transcript Modal -->
-<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
-        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] sm:h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl shrink-0">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
                 Audio Transcript
             </h3>
             <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
         </div>
-        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
+        <div class="p-4 sm:p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-base sm:text-lg" id="transcript-content">
             <div class="space-y-5 max-w-3xl mx-auto">
-                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">The Gherkin Building</h4>
+                <h4 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">The Gherkin Building</h4>
                 <p>Today I’d like to tell you about how U.K architects are playing their part to address the issue of global warming. You have seen many of these iconic buildings while going about your everyday life, but you may not know how they are affecting your tomorrow.</p>
                 <p>In 2003, construction was completed on the famous Swiss Re Building, or more informally called the Gherkin, a true masterpiece commissioned by the <mark class="answer-highlight">law</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q31]</span> offices of Foster and Partner. This is not the first ambitious endeavor of the film - they are renowned for their various philanthropic, environmental efforts.</p>
                 <p>The Gherkin, with its cutting edge green initiative and sharp design, is gaining recognition as an icon in modern architecture. You can pick it out of the London skyline by its unorthodox <mark class="answer-highlight">cigar</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q32]</span> shape.</p>
@@ -334,7 +353,7 @@
 </div>
 
 <!-- Alert Modal -->
-<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80] transition-opacity">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
         <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
             <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -373,32 +392,32 @@
                     title: "Section 4",
                     leftQuestions: `
                         <div class="h-full flex flex-col pt-2">
-                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">The Gherkin Building</h3>
+                            <h3 class="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-4 sm:mb-6 uppercase tracking-wide">The Gherkin Building</h3>
                             
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 31-35</span>
                                 </div>
-                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
                                     Complete the notes below. Write <strong>ONE WORD ONLY</strong> for each answer.
                                 </p>
                                 
-                                <div class="space-y-6 text-gray-800">
+                                <div class="space-y-6 text-gray-800 text-sm sm:text-base">
                                     <!-- Section 1 -->
-                                    <div class="q-item" id="container-s0_q31">
+                                    <div class="q-item text-sm sm:text-base leading-loose" id="container-s0_q31">
                                         <span class="text-gray-800">Commissioned by:</span>
-                                        <span><strong class="text-blue-600 mx-1">31</strong><input type="text" name="s0_q31" class="fill-in-blank w-36" autocomplete="off"></span>
+                                        <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">31</strong><input type="text" name="s0_q31" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span>
                                         <span class="text-gray-800">firm called Foster and Partners.</span>
                                     </div>
                                     
                                     <!-- Section 2 -->
-                                    <div class="q-item mt-4">
-                                        <h4 class="font-bold text-blue-800 text-lg border-b border-blue-100 pb-1 mb-2">The features of its appearance:</h4>
+                                    <div class="q-item mt-4 sm:mt-6">
+                                        <h4 class="font-bold text-blue-800 text-base sm:text-lg border-b border-blue-100 pb-1 mb-2">The features of its appearance:</h4>
                                         <ul class="list-disc pl-5 space-y-3">
-                                            <li id="container-s0_q32">Its shape is like a <span><strong class="text-blue-600 mx-1">32</strong><input type="text" name="s0_q32" class="fill-in-blank w-36" autocomplete="off"></span>.</li>
-                                            <li id="container-s0_q33">It can reduce the carbon <span><strong class="text-blue-600 mx-1">33</strong><input type="text" name="s0_q33" class="fill-in-blank w-36" autocomplete="off"></span> of the city.</li>
-                                            <li id="container-s0_q34">It lets <span><strong class="text-blue-600 mx-1">34</strong><input type="text" name="s0_q34" class="fill-in-blank w-36" autocomplete="off"></span> pass through the building, both reducing heating costs and brightening up the workspace.</li>
-                                            <li id="container-s0_q35">One false story claims that the exterior of the building is partly made of <span><strong class="text-blue-600 mx-1">35</strong><input type="text" name="s0_q35" class="fill-in-blank w-36" autocomplete="off"></span>.</li>
+                                            <li id="container-s0_q32" class="leading-loose">Its shape is like a <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">32</strong><input type="text" name="s0_q32" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span>.</li>
+                                            <li id="container-s0_q33" class="leading-loose">It can reduce the carbon <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">33</strong><input type="text" name="s0_q33" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span> of the city.</li>
+                                            <li id="container-s0_q34" class="leading-loose">It lets <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">34</strong><input type="text" name="s0_q34" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span> pass through the building, both reducing heating costs and brightening up the workspace.</li>
+                                            <li id="container-s0_q35" class="leading-loose">One false story claims that the exterior of the building is partly made of <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">35</strong><input type="text" name="s0_q35" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span>.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -406,37 +425,37 @@
                         </div>
                     `,
                     rightQuestions: `
-                        <div class="h-full flex flex-col pt-16">
+                        <div class="h-full flex flex-col pt-4 sm:pt-16">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 36-40</span>
                                 </div>
                                 
-                                <div class="space-y-6 flex-1 text-gray-800 mt-2">
+                                <div class="space-y-6 flex-1 text-gray-800 mt-2 text-sm sm:text-base">
                                     <!-- Section 3 -->
                                     <div class="q-item">
-                                        <h4 class="font-bold text-blue-800 text-lg border-b border-blue-100 pb-1 mb-2">Architectural concept:</h4>
+                                        <h4 class="font-bold text-blue-800 text-base sm:text-lg border-b border-blue-100 pb-1 mb-2">Architectural concept:</h4>
                                         <ul class="list-disc pl-5 space-y-3">
-                                            <li id="container-s0_q36">links <span><strong class="text-blue-600 mx-1">36</strong><input type="text" name="s0_q36" class="fill-in-blank w-36" autocomplete="off"></span> with the workplace.</li>
-                                            <li id="container-s0_q37">relies less on <span><strong class="text-blue-600 mx-1">37</strong><input type="text" name="s0_q37" class="fill-in-blank w-40" autocomplete="off"></span> for temperature control than other similar buildings.</li>
+                                            <li id="container-s0_q36" class="leading-loose">links <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">36</strong><input type="text" name="s0_q36" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span> with the workplace.</li>
+                                            <li id="container-s0_q37" class="leading-loose">relies less on <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">37</strong><input type="text" name="s0_q37" class="fill-in-blank w-32 sm:w-40" autocomplete="off"></span> for temperature control than other similar buildings.</li>
                                         </ul>
                                     </div>
                                     
                                     <!-- Section 4 -->
-                                    <div class="q-item mt-4">
-                                        <h4 class="font-bold text-blue-800 text-lg border-b border-blue-100 pb-1 mb-2">The features of its interior:</h4>
+                                    <div class="q-item mt-4 sm:mt-6">
+                                        <h4 class="font-bold text-blue-800 text-base sm:text-lg border-b border-blue-100 pb-1 mb-2">The features of its interior:</h4>
                                         <ul class="list-disc pl-5 space-y-3">
-                                            <li id="container-s0_q38">The atria that let fresh air pass through the interior are known as <span><strong class="text-blue-600 mx-1">38</strong><input type="text" name="s0_q38" class="fill-in-blank w-36" autocomplete="off"></span>.</li>
-                                            <li id="container-s0_q39">There is a place for entertainment called the <span><strong class="text-blue-600 mx-1">39</strong><input type="text" name="s0_q39" class="fill-in-blank w-36" autocomplete="off"></span> at the top of the building.</li>
+                                            <li id="container-s0_q38" class="leading-loose">The atria that let fresh air pass through the interior are known as <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">38</strong><input type="text" name="s0_q38" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span>.</li>
+                                            <li id="container-s0_q39" class="leading-loose">There is a place for entertainment called the <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">39</strong><input type="text" name="s0_q39" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span> at the top of the building.</li>
                                         </ul>
                                     </div>
 
                                     <!-- Section 5 -->
-                                    <div class="q-item mt-4">
-                                        <h4 class="font-bold text-blue-800 text-lg border-b border-blue-100 pb-1 mb-2">The future of urban planning and architecture:</h4>
+                                    <div class="q-item mt-4 sm:mt-6">
+                                        <h4 class="font-bold text-blue-800 text-base sm:text-lg border-b border-blue-100 pb-1 mb-2">The future of urban planning and architecture:</h4>
                                         <ul class="list-disc pl-5 space-y-3">
-                                            <li id="container-s0_q40">It is likely that the entire <span><strong class="text-blue-600 mx-1">40</strong><input type="text" name="s0_q40" class="fill-in-blank w-36" autocomplete="off"></span> will be designed with more similarly eco-friendly buildings in future.</li>
-                                            <li>A new building will be constructed aiming to produce zero waste and remove carbon dioxide from us as much as possible.</li>
+                                            <li id="container-s0_q40" class="leading-loose">It is likely that the entire <span class="whitespace-nowrap"><strong class="text-blue-600 mx-1 sm:mx-2">40</strong><input type="text" name="s0_q40" class="fill-in-blank w-28 sm:w-36" autocomplete="off"></span> will be designed with more similarly eco-friendly buildings in future.</li>
+                                            <li class="leading-loose">A new building will be constructed aiming to produce zero waste and remove carbon dioxide from us as much as possible.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -469,7 +488,7 @@
             userAnswers: {},
             currentSection: 0,
             answersChecked: {},
-            currentFontSize: 17,
+            currentFontSize: 16, // Default font size (matches standard 1rem)
 
             // Elements
             leftPane: document.getElementById('left-pane'),
@@ -662,8 +681,13 @@
             
             changeFontSize(delta) {
                 this.currentFontSize += delta;
-                if (this.currentFontSize < 14) this.currentFontSize = 14;
-                if (this.currentFontSize > 26) this.currentFontSize = 26;
+                if (this.currentFontSize < 12) this.currentFontSize = 12;
+                if (this.currentFontSize > 24) this.currentFontSize = 24;
+                
+                // Adjust the root element's font size to scale all Tailwind 'rem' utilities
+                document.documentElement.style.fontSize = `${this.currentFontSize}px`;
+                
+                // Keep the custom property for any non-Tailwind elements
                 document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
             },
 
@@ -731,27 +755,7 @@
             },
 
             handleInput(e) {
-                if (e.target.type === 'checkbox') {
-                    const name = e.target.name;
-                    const checkedBoxes = Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
-                    
-                    // Enforce maximum selection (2 choices)
-                    if (checkedBoxes.length > 2) {
-                        e.target.checked = false; // Undo selection
-                        return;
-                    }
-                    
-                    this.userAnswers[name] = checkedBoxes;
-                    
-                    // Clear visual checking styles if they exist
-                    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
-                        cb.parentElement.classList.remove('bg-green-50', 'border-green-400', 'bg-red-50', 'border-red-400', 'border-green-400', 'border-dashed');
-                        cb.parentElement.classList.add('border-transparent');
-                    });
-                    
-                    this.updateCheckButtonsState();
-                    
-                } else if (e.target.name && e.target.type === 'text') {
+                if (e.target.name && e.target.type === 'text') {
                     this.userAnswers[e.target.name] = e.target.value;
                     e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
                     this.updateCheckButtonsState();
@@ -761,17 +765,10 @@
             restoreAnswers() {
                 for (const qId in this.userAnswers) {
                     const value = this.userAnswers[qId];
-                    if (Array.isArray(value)) {
-                        value.forEach(val => {
-                            const cb = document.querySelector(`input[name="${qId}"][value="${val}"]`);
-                            if (cb) cb.checked = true;
-                        });
-                    } else {
-                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
-                        inputs.forEach(input => {
-                            input.value = value;
-                        });
-                    }
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    inputs.forEach(input => {
+                        input.value = value;
+                    });
                 }
             },
 
@@ -787,25 +784,16 @@
                 const keys = keysStr.split(',');
                 let allAnswered = true;
                 for (const qId of keys) {
-                    if (Array.isArray(answers[qId])) {
-                        // Checkbox multiple choice (expects 2)
-                        const userVals = this.userAnswers[qId] || [];
-                        if (userVals.length !== answers[qId].length) {
-                            allAnswered = false;
-                            break;
-                        }
-                    } else {
-                        // Fill in the blank
-                        const answer = (this.userAnswers[qId] || "").trim();
-                        if (answer === "") {
-                            allAnswered = false;
-                            break;
-                        }
+                    // Fill in the blank
+                    const answer = (this.userAnswers[qId] || "").trim();
+                    if (answer === "") {
+                        allAnswered = false;
+                        break;
                     }
                 }
 
                 if (!allAnswered) {
-                    this.showAlert("Incomplete Answers", "Please fill in all the blanks and select required checkboxes before checking your answers.");
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks before checking your answers.");
                     return;
                 }
 
@@ -899,68 +887,32 @@
                 for (const qId of keys) {
                     let questionContainer = document.getElementById(`container-${qId}`);
                     
-                    if (Array.isArray(answers[qId])) {
-                        // Handle Checkboxes
-                        const userVals = this.userAnswers[qId] || [];
-                        const correctVals = answers[qId];
-                        
-                        document.querySelectorAll(`input[name="${qId}"]`).forEach(cb => {
-                            const isSelected = userVals.includes(cb.value);
-                            const isCorrect = correctVals.includes(cb.value);
-                            
-                            cb.parentElement.classList.remove('border-transparent');
-                            
-                            if (isSelected) {
-                                if (isCorrect) {
-                                    cb.parentElement.classList.add('bg-green-50', 'border-green-400');
-                                } else {
-                                    cb.parentElement.classList.add('bg-red-50', 'border-red-400');
-                                }
-                            } else if (isCorrect) {
-                                // Indicate missed correct answer
-                                cb.parentElement.classList.add('border-green-400', 'border-dashed');
-                            }
-                        });
-                        
-                        if (explanations[qId] && questionContainer) {
-                            const existingExpl = document.getElementById(`expl-${qId}`);
-                            if (!existingExpl) {
-                                const explDiv = document.createElement('div');
-                                explDiv.id = `expl-${qId}`;
-                                explDiv.className = 'explanation-box mt-3 mb-4';
-                                const formattedAnswer = correctVals.map(v => v.toUpperCase()).join(' & ');
-                                explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
-                                questionContainer.insertAdjacentElement('afterend', explDiv);
-                            }
-                        }
+                    // Handle Fill-in-the-blanks
+                    const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                    if (inputs.length === 0) continue;
+
+                    const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                    const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                    const input = inputs[0];
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        input.classList.add('correct-answer-text');
                     } else {
-                        // Handle Fill-in-the-blanks
-                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
-                        if (inputs.length === 0) continue;
+                        input.classList.add('incorrect-answer-text');
+                    }
 
-                        const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
-                        const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
-                        const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
-
-                        const input = inputs[0];
-                        input.classList.remove('correct-answer-text', 'incorrect-answer-text');
-                        if (isCorrect) {
-                            input.classList.add('correct-answer-text');
-                        } else {
-                            input.classList.add('incorrect-answer-text');
-                        }
-
-                        if (explanations[qId] && questionContainer) {
-                             const existingExpl = document.getElementById(`expl-${qId}`);
-                             if (!existingExpl) {
-                                const explDiv = document.createElement('div');
-                                explDiv.id = `expl-${qId}`;
-                                explDiv.className = 'explanation-box mt-3 mb-4';
-                                const formattedAnswer = correctAnswersList[0].toUpperCase();
-                                explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
-                                questionContainer.insertAdjacentElement('afterend', explDiv);
-                             }
-                        }
+                    if (explanations[qId] && questionContainer) {
+                         const existingExpl = document.getElementById(`expl-${qId}`);
+                         if (!existingExpl) {
+                            const explDiv = document.createElement('div');
+                            explDiv.id = `expl-${qId}`;
+                            explDiv.className = 'explanation-box mt-3 mb-4';
+                            const formattedAnswer = correctAnswersList[0].toUpperCase();
+                            explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                            questionContainer.insertAdjacentElement('afterend', explDiv);
+                         }
                     }
                 }
 
@@ -982,18 +934,10 @@
                         
                         let allAnswered = true;
                         for (const qId of ex.keys) {
-                            if (Array.isArray(answers[qId])) {
-                                const userVals = this.userAnswers[qId] || [];
-                                if (userVals.length !== answers[qId].length) {
-                                    allAnswered = false;
-                                    break;
-                                }
-                            } else {
-                                const answer = (this.userAnswers[qId] || "").trim();
-                                if (answer === "") {
-                                    allAnswered = false;
-                                    break;
-                                }
+                            const answer = (this.userAnswers[qId] || "").trim();
+                            if (answer === "") {
+                                allAnswered = false;
+                                break;
                             }
                         }
 
