@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listening Test Simulator - P1 Test 13</title>
+    <title>Listening Test Simulator - P1 Test 5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -88,6 +88,10 @@
             border-radius: 4px 4px 0 0;
             margin: 0 4px;
         }
+        .fill-in-blank.single-letter {
+            width: 60px;
+            text-transform: uppercase;
+        }
         .fill-in-blank:focus {
             outline: none;
             border-bottom: 2px solid #2563eb;
@@ -117,6 +121,7 @@
             font-size: 0.95rem;
             color: #1e3a8a;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: left;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-8px); }
@@ -179,6 +184,9 @@
             .fill-in-blank {
                 width: 120px;
             }
+            .fill-in-blank.single-letter {
+                width: 50px;
+            }
         }
     </style>
 </head>
@@ -193,7 +201,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 13</span></h1>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 5</span></h1>
         </div>
         <div class="flex items-center space-x-5">
             <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
@@ -256,7 +264,7 @@
                 <div id="section-tabs" class="flex space-x-2">
                     <!-- Section buttons will be loaded here by JS -->
                 </div>
-                <button id="transcript-btn" class="px-4 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -333,7 +341,7 @@
 
                 <p><strong class="text-green-700 font-semibold">Mr. Schiﬀer:</strong> Goodness, I shall have to brush up on my tennis skills! Are there any other activities organised by the hotel that we can partake in? It’s just that it’s our wedding anniversary on the 30th of June, and I would like to provide my wife with the perfect romantic getaway.</p>
 
-                <p><strong class="text-blue-700 font-semibold">Reception:</strong> I can assure you, Sir, that your wife won’t be disappointed. Ours is a 5- star resort which is renowned for its luxury and beauty. In terms of activities, the hotel provides thrice weekly entertainment. On Tuesdays, guests will take a mini bus and partake in learning to cook succulent <mark class="answer-highlight">ﬁsh dishes</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span> with our Michelin starred chef, Enrique. The class will take place in a beautiful valley deep in the Cretan hills, where guests will be treated to an intimate <mark class="answer-highlight">piano</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span> performance by our in-house concert pianist, Pedro. On Wednesdays, a select number of guests will be fortunate enough to explore the mountains by <mark class="answer-highlight">helicopter</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span>, before being transported to a tropical <mark class="answer-highlight">Cretan garden</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span> by shuttle bus. Finally, on Thursdays after a fancy dinner, we provide a spectacular display [of <mark class="answer-highlight">fireworks</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span>], which guests can view from the comfort of a <mark class="answer-highlight">cable car</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span>.</p>
+                <p><strong class="text-blue-700 font-semibold">Reception:</strong> I can assure you, Sir, that your wife won’t be disappointed. Ours is a 5- star resort which is renowned for its luxury and beauty. In terms of activities, the hotel provides thrice weekly entertainment. On Tuesdays, guests will take a mini bus and partake in learning to cook succulent <mark class="answer-highlight">ﬁsh dishes</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span> with our Michelin starred chef, Enrique. The class will take place in a beautiful valley deep in the Cretan hills, where guests will be treated to an intimate <mark class="answer-highlight">piano</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span> performance by our in-house concert pianist, Pedro. On Wednesdays, a select number of guests will be fortunate enough to explore the mountains by <mark class="answer-highlight">helicopter</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span>, before being transported to a tropical <mark class="answer-highlight">Cretan garden</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span> by shuttle bus. Finally, on Thursdays after a fancy dinner, we provide a spectacular display of <mark class="answer-highlight">fireworks</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span>, which guests can view from the comfort of a <mark class="answer-highlight">cable car</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span>.</p>
 
                 <p><strong class="text-green-700 font-semibold">Mr. Schiﬀer:</strong> Oh wow, that all sounds absolutely wonderful! I shall book the room now, and then I need to look at ﬂights so as not to become extortionate. Would you like to take my details now or later?</p>
             </div>
@@ -341,21 +349,37 @@
     </div>
 </div>
 
+<!-- Alert Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
+    </div>
+</div>
+
 <script>
     // --- DATA ---
-    const vocabulary = {}; // Left empty for this specific test
+    const vocabulary = {}; 
 
     const explanations = {
-        s0_q1: "The speaker mentions the temperature can go up to 19 degrees Celsius.",
+        s0_q1: "The speaker mentions the temperature shouldn't exceed 19 degrees Celsius.",
         s0_q2: "The normal transfer to the airport takes about 40 minutes.",
-        s0_q3: "The rooms come with en-suite facilities and a balcony.",
-        s0_q4: "The hotel features three standard tennis courts.",
-        s0_q5: "On Tuesdays, guests have the opportunity to learn to make fish dishes.",
-        s0_q6: "There will be a piano concert.",
-        s0_q7: "Transportation includes taking a helicopter.",
-        s0_q8: "Guests will explore a tropical Cretan garden.",
-        s0_q9: "There will be a spectacular display of fireworks.",
-        s0_q10: "Transportation on Thursdays is provided via cable car."
+        s0_q3: "The standard rooms come with en-suite facilities and a balcony.",
+        s0_q4: "The hotel features three full-sized tennis courts.",
+        s0_q5: "On Tuesdays, guests have the opportunity to learn to cook succulent fish dishes.",
+        s0_q6: "There will be an intimate piano performance by the in-house concert pianist.",
+        s0_q7: "Guests will explore the mountains by helicopter.",
+        s0_q8: "Guests will be transported to a tropical Cretan garden by shuttle bus.",
+        s0_q9: "After dinner on Thursdays, there will be a spectacular display of fireworks.",
+        s0_q10: "Guests can view the display from the comfort of a cable car."
     };
 
     const testData = {
@@ -453,7 +477,7 @@
                                                             learning to make <strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-28" autocomplete="off">
                                                         </li>
                                                         <li class="q-item" id="container-s0_q6">
-                                                            having a <strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-24" autocomplete="off"> concert
+                                                            having a <strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-28" autocomplete="off"> concert
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -553,6 +577,13 @@
             closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
             transcriptBtn: document.getElementById('transcript-btn'),
 
+            // Alert Elements
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
+
             init() {
                 this.setupEventListeners();
                 this.loadContent();
@@ -628,10 +659,31 @@
                 });
 
                 // Transcript Modal Events
-                this.transcriptBtn.addEventListener('click', () => this.openTranscriptModal());
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
                 this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
                 this.transcriptModal.addEventListener('click', (e) => {
                    if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Alert Modal Events
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
                 });
 
                 // Input delegator for saving answers and UI styling
@@ -741,10 +793,30 @@
                 }, 200);
             },
             
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
+
             handleInput(e) {
                 if (e.target.name && e.target.type === 'text') {
                     this.userAnswers[e.target.name] = e.target.value;
                     e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
                 }
             },
 
@@ -762,10 +834,51 @@
                 if (this.answersChecked[exerciseKey]) {
                     this.answersChecked[exerciseKey] = false;
                     this.loadContent();
+                    this.updateTranscriptState();
                     return;
                 }
+
+                // Check if all blanks are filled
+                const [startQ, endQ] = range.split('-').map(Number);
+                let allAnswered = true;
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    const answer = (this.userAnswers[qId] || "").trim();
+                    if (answer === "") {
+                        allAnswered = false;
+                        break;
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks before checking your answers.");
+                    return;
+                }
+
                 this.answersChecked[exerciseKey] = true;
                 this.showExerciseAnswers(exerciseKey, range, prefix);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
             },
 
             loadContent() {
@@ -794,6 +907,9 @@
                         this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
                     }
                 });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
             },
             
             getReadingExerciseTypes() {
@@ -807,15 +923,12 @@
 
                 exercises.forEach(exercise => {
                     const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
-                    const isChecked = this.answersChecked[exerciseKey];
-                    const buttonText = isChecked ? 'Reset Answers' : 'Check Answers';
-                    const buttonColor = isChecked ? 'bg-gray-800 hover:bg-gray-900' : 'bg-blue-600 hover:bg-blue-700';
 
                     const buttonContainer = document.createElement('div');
                     buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
                     buttonContainer.innerHTML = `
-                        <button class="check-exercise-btn ${buttonColor} text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
-                            ${buttonText}
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            Check Answers
                         </button>
                     `;
 
@@ -863,13 +976,38 @@
                     }
                 }
 
-                // Update Button State
-                const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
-                if (btn) {
-                    btn.textContent = 'Reset Answers';
-                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
-                }
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        let allAnswered = true;
+                        for (let i = ex.startQ; i <= ex.endQ; i++) {
+                            const qId = `${ex.prefix}${i}`;
+                            const answer = (this.userAnswers[qId] || "").trim();
+                            if (answer === "") {
+                                allAnswered = false;
+                                break;
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
             },
 
             initSplitter() {
