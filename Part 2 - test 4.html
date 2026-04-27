@@ -170,22 +170,34 @@
             color: #166534;
         }
 
+        /* Responsive Design Overrides */
         @media (max-width: 768px) {
             .content-panes {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr 5px 1fr;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; /* Allow entire container to scroll naturally */
             }
             .splitter {
-                cursor: row-resize;
+                display: none; /* Hide splitter on mobile */
             }
             .pane {
                 padding: 1rem;
+                overflow-y: visible; /* Disable individual scrolling */
+                height: auto;
+            }
+            #left-pane {
+                border-bottom: 2px dashed #cbd5e1;
+                padding-bottom: 2rem;
             }
             .fill-in-blank {
-                width: 100px;
+                width: 100px; /* Smaller inputs for mobile */
             }
             .fill-in-blank.single-letter {
                 width: 50px;
+            }
+            /* Adjust inner padding of questions */
+            .bg-white.p-6 {
+                padding: 1.25rem !important; 
             }
             table th, table td {
                 padding: 0.5rem;
@@ -197,21 +209,24 @@
 
 <div id="test-container" class="ielts-container">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-20 shadow-sm">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 text-white p-2 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center gap-2 sm:space-x-3">
+            <div class="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
                 </svg>
             </div>
+            <!-- Full title for desktop -->
             <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P2 Test 4</span></h1>
+            <!-- Short title for mobile -->
+            <h1 class="text-base font-bold text-gray-800 sm:hidden">Listening <span class="text-blue-600">P2 T4</span></h1>
         </div>
-        <div class="flex items-center space-x-5">
-            <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
-                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Decrease Font Size">A-</button>
-                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold" title="Increase Font Size">A+</button>
+        <div class="flex items-center gap-2 sm:space-x-5">
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Increase Font Size">A+</button>
             </div>
-            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-3 py-1 rounded-full">Listening</div>
+            <div class="hidden xs:block text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-2 sm:px-3 py-1 rounded-full">Part 2</div>
         </div>
     </header>
 
@@ -234,44 +249,45 @@
     </main>
 
     <!-- Footer with Audio Player -->
-    <footer class="bg-white border-t border-gray-200 px-6 py-3 z-20">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div class="flex items-center space-x-6 w-full">
-                <div id="passage-indicator" class="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+    <footer class="bg-white border-t border-gray-200 px-3 sm:px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto gap-2">
+            <div class="flex items-center gap-2 sm:space-x-6 w-full min-w-0">
+                <div id="passage-indicator" class="hidden md:block text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
                     Section 2 of 4
                 </div>
                 <!-- Custom Audio Player -->
-                <div class="w-full max-w-lg mt-1">
-                    <div class="flex items-center space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-4 py-2 h-12 shadow-sm hover:shadow transition-shadow duration-300">
-                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
-                            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
-                            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                <div class="w-full max-w-lg">
+                    <div class="flex items-center space-x-2 sm:space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-2 sm:px-4 py-2 h-10 sm:h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-3 h-3 sm:w-4 sm:h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
                         </button>
                         
                         <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
-                            <div class="w-full h-1.5 bg-gray-200 rounded-full group-hover:h-2 transition-all duration-200 relative overflow-hidden">
+                            <div class="w-full h-1.5 sm:h-2 bg-gray-200 rounded-full group-hover:h-2.5 transition-all duration-200 relative overflow-hidden">
                                 <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
                             </div>
                         </div>
                         
-                        <div class="flex items-center text-xs font-semibold text-slate-500 shrink-0 w-[4.5rem] justify-end tabular-nums tracking-tight">
+                        <div class="flex items-center text-[10px] sm:text-xs font-semibold text-slate-500 shrink-0 w-[3.5rem] sm:w-[4.5rem] justify-end tabular-nums tracking-tight">
                             <span id="current-time" class="text-blue-700">0:00</span>
-                            <span class="mx-1 text-slate-300">/</span>
+                            <span class="mx-0.5 sm:mx-1 text-slate-300">/</span>
                             <span id="total-time">0:00</span>
                         </div>
                         <audio id="custom-audio-element" src="https://ielts-up.com/listening/11.2.mp3" preload="metadata"></audio>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-4 shrink-0">
-                <div id="section-tabs" class="flex space-x-2">
+            <div class="flex items-center gap-2 sm:space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2 hidden sm:flex">
                     <!-- Section buttons will be loaded here by JS -->
                 </div>
-                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="transcript-btn" class="px-3 sm:px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Transcript
+                    <span class="sm:hidden">Script</span>
+                    <span class="hidden sm:inline">Transcript</span>
                 </button>
             </div>
         </div>
@@ -282,37 +298,37 @@
 <div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
 
 <!-- Vocabulary Modal -->
-<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
+<div id="vocab-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto relative transform transition-all scale-95 opacity-0" id="vocab-modal-content">
         <button id="close-vocab-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button>
-        <div class="flex items-center mb-6 border-b pb-4">
-            <h3 id="vocab-word" class="text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
+        <div class="flex items-center mb-6 border-b pb-4 mt-2">
+            <h3 id="vocab-word" class="text-2xl sm:text-3xl font-extrabold text-gray-900 capitalize tracking-tight"></h3>
         </div>
         <div class="flex items-center mb-5">
-            <button id="play-audio-btn" class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100" title="Listen to pronunciation">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            <button id="play-audio-btn" class="flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white mr-4 transition-all shadow-sm border border-blue-100 shrink-0" title="Listen to pronunciation">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
             </button>
-            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
+            <p id="vocab-pronunciation-text" class="text-gray-500 font-mono text-base sm:text-lg bg-gray-50 px-3 py-1 rounded-md border border-gray-100"></p>
         </div>
-        <p id="vocab-meaning" class="text-gray-700 text-lg leading-relaxed"></p>
+        <p id="vocab-meaning" class="text-gray-700 text-base sm:text-lg leading-relaxed"></p>
     </div>
 </div>
 
 <!-- Transcript Modal -->
-<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
-        <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] sm:h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl shrink-0">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
                 Audio Transcript
             </h3>
             <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
         </div>
-        <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
-            <div class="space-y-5 max-w-3xl mx-auto">
-                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Extracurricular Project</h4>
+        <div class="p-4 sm:p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-base sm:text-lg" id="transcript-content">
+            <div class="space-y-4 sm:space-y-5 max-w-3xl mx-auto">
+                <h4 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Extracurricular Project</h4>
 
                 <p><strong class="text-blue-700 font-semibold">Tutor:</strong> Hi, Mark. Hi, Gina. What can I help you with?</p>
                 <p><strong class="text-green-700 font-semibold">Mark:</strong> So we were hoping you could help us with this extracurricular project.</p>
@@ -359,7 +375,7 @@
 </div>
 
 <!-- Alert Modal -->
-<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80] transition-opacity">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
         <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
             <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -398,40 +414,40 @@
                     title: "Section 2",
                     leftQuestions: `
                         <div class="h-full flex flex-col pt-2">
-                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">Extracurricular Project</h3>
+                            <h3 class="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-4 sm:mb-6 uppercase tracking-wide">Extracurricular Project</h3>
                             
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 11-14</span>
                                 </div>
-                                <p class="mb-6 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
                                     Answer the questions below. Choose the correct letter, <strong>A</strong>, <strong>B</strong>, or <strong>C</strong>.
                                 </p>
                                 
-                                <div class="space-y-8 mb-8">
+                                <div class="space-y-6 sm:space-y-8 mb-8">
                                     <!-- Q11 -->
                                     <div class="q-item" id="container-s0_q11">
-                                        <p class="font-semibold text-gray-800 mb-3"><strong class="text-blue-700 mr-2">11</strong> What is the project that Mark and Gina want to start?</p>
+                                        <p class="font-semibold text-gray-800 mb-3 text-base sm:text-lg"><strong class="text-blue-700 mr-2">11</strong> What is the project that Mark and Gina want to start?</p>
                                         <div class="space-y-2 text-gray-700">
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q11" value="a" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">A</span>
-                                                    <span class="text-[1.05rem]">Business school requirements.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q11" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Business school requirements.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q11" value="b" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">B</span>
-                                                    <span class="text-[1.05rem]">Directions to the business school.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q11" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Directions to the business school.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q11" value="c" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">C</span>
-                                                    <span class="text-[1.05rem]">Explaining the business school experience.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q11" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Explaining the business school experience.</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -439,27 +455,27 @@
                                     
                                     <!-- Q12 -->
                                     <div class="q-item" id="container-s0_q12">
-                                        <p class="font-semibold text-gray-800 mb-3"><strong class="text-blue-700 mr-2">12</strong> Who is the target audience?</p>
+                                        <p class="font-semibold text-gray-800 mb-3 text-base sm:text-lg"><strong class="text-blue-700 mr-2">12</strong> Who is the target audience?</p>
                                         <div class="space-y-2 text-gray-700">
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q12" value="a" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">A</span>
-                                                    <span class="text-[1.05rem]">Business students.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q12" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Business students.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q12" value="b" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">B</span>
-                                                    <span class="text-[1.05rem]">Business school applicants.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q12" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Business school applicants.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q12" value="c" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">C</span>
-                                                    <span class="text-[1.05rem]">Summer school attendees.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q12" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Summer school attendees.</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -467,27 +483,27 @@
 
                                     <!-- Q13 -->
                                     <div class="q-item" id="container-s0_q13">
-                                        <p class="font-semibold text-gray-800 mb-3"><strong class="text-blue-700 mr-2">13</strong> How will they convey the information?</p>
+                                        <p class="font-semibold text-gray-800 mb-3 text-base sm:text-lg"><strong class="text-blue-700 mr-2">13</strong> How will they convey the information?</p>
                                         <div class="space-y-2 text-gray-700">
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q13" value="a" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">A</span>
-                                                    <span class="text-[1.05rem]">Summer course lecture.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q13" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Summer course lecture.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q13" value="b" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">B</span>
-                                                    <span class="text-[1.05rem]">Informational video.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q13" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Informational video.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q13" value="c" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">C</span>
-                                                    <span class="text-[1.05rem]">Pamphlet in the mail.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q13" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Pamphlet in the mail.</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -495,27 +511,27 @@
 
                                     <!-- Q14 -->
                                     <div class="q-item" id="container-s0_q14">
-                                        <p class="font-semibold text-gray-800 mb-3"><strong class="text-blue-700 mr-2">14</strong> They want to do this project because</p>
+                                        <p class="font-semibold text-gray-800 mb-3 text-base sm:text-lg"><strong class="text-blue-700 mr-2">14</strong> They want to do this project because</p>
                                         <div class="space-y-2 text-gray-700">
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q14" value="a" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">A</span>
-                                                    <span class="text-[1.05rem]">students worry about their studies.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q14" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">students worry about their studies.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q14" value="b" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">B</span>
-                                                    <span class="text-[1.05rem]">they want to obtain a good grade.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q14" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">they want to obtain a good grade.</span>
                                                 </div>
                                             </label>
-                                            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
-                                                <input type="radio" name="s0_q14" value="c" class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <div class="flex items-center space-x-3">
-                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700">C</span>
-                                                    <span class="text-[1.05rem]">they want to attract future business school applicants.</span>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q14" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">they want to attract future business school applicants.</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -525,68 +541,68 @@
                         </div>
                     `,
                     rightQuestions: `
-                        <div class="h-full flex flex-col pt-16">
+                        <div class="h-full flex flex-col pt-4 sm:pt-16">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 15-20</span>
                                 </div>
-                                <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
                                     Complete the table below. Write <strong>NO MORE THAN TWO WORDS</strong> for each answer.
                                 </p>
                                 
                                 <div class="space-y-6 flex-1 text-gray-800 mt-2 overflow-x-auto">
-                                    <table class="w-full text-left border-collapse border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                                        <thead class="bg-gray-100 text-gray-800 text-sm uppercase tracking-wider">
+                                    <table class="w-full text-left border-collapse border border-gray-200 shadow-sm rounded-lg overflow-hidden min-w-[500px]">
+                                        <thead class="bg-gray-100 text-gray-800 text-xs sm:text-sm uppercase tracking-wider">
                                             <tr>
-                                                <th class="p-4 border-b border-gray-200 font-semibold w-1/4">Topic</th>
-                                                <th class="p-4 border-b border-gray-200 font-semibold w-1/2">Details</th>
-                                                <th class="p-4 border-b border-gray-200 font-semibold w-1/4">Time</th>
+                                                <th class="p-3 sm:p-4 border-b border-gray-200 font-semibold w-1/4">Topic</th>
+                                                <th class="p-3 sm:p-4 border-b border-gray-200 font-semibold w-1/2">Details</th>
+                                                <th class="p-3 sm:p-4 border-b border-gray-200 font-semibold w-1/4">Time</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="text-gray-700 align-middle">
+                                        <tbody class="text-gray-700 align-middle text-sm sm:text-base">
                                             <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
-                                                <td class="p-4 font-medium">Academics</td>
-                                                <td class="p-4">
+                                                <td class="p-3 sm:p-4 font-medium">Academics</td>
+                                                <td class="p-3 sm:p-4">
                                                     <ul class="list-disc pl-4 space-y-2">
-                                                        <li id="container-s0_q15" class="py-1">
-                                                            <strong class="text-blue-600 mr-2">15</strong><input type="text" name="s0_q15" class="fill-in-blank w-40" autocomplete="off">
+                                                        <li id="container-s0_q15" class="py-1 leading-loose">
+                                                            <strong class="text-blue-600 mr-1 sm:mr-2">15</strong><input type="text" name="s0_q15" class="fill-in-blank w-28 sm:w-40 mx-1" autocomplete="off">
                                                         </li>
                                                     </ul>
                                                 </td>
-                                                <td class="p-4">7 minutes</td>
+                                                <td class="p-3 sm:p-4">7 minutes</td>
                                             </tr>
                                             <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
-                                                <td class="p-4" id="container-s0_q16">
-                                                    <strong class="text-blue-600 mr-2">16</strong><input type="text" name="s0_q16" class="fill-in-blank w-36" autocomplete="off">
+                                                <td class="p-3 sm:p-4 leading-loose" id="container-s0_q16">
+                                                    <strong class="text-blue-600 mr-1 sm:mr-2">16</strong><input type="text" name="s0_q16" class="fill-in-blank w-28 sm:w-36 mx-1" autocomplete="off">
                                                 </td>
-                                                <td class="p-4">
+                                                <td class="p-3 sm:p-4">
                                                     <ul class="list-disc pl-4 space-y-2">
                                                         <li class="py-1">cafeteria</li>
-                                                        <li id="container-s0_q17" class="py-1">
-                                                            <strong class="text-blue-600 mr-2">17</strong><input type="text" name="s0_q17" class="fill-in-blank w-32" autocomplete="off">
+                                                        <li id="container-s0_q17" class="py-1 leading-loose">
+                                                            <strong class="text-blue-600 mr-1 sm:mr-2">17</strong><input type="text" name="s0_q17" class="fill-in-blank w-24 sm:w-32 mx-1" autocomplete="off">
                                                         </li>
                                                     </ul>
                                                 </td>
-                                                <td class="p-4">6 minutes</td>
+                                                <td class="p-3 sm:p-4">6 minutes</td>
                                             </tr>
                                             <tr class="hover:bg-gray-50 transition-colors border-b border-gray-200">
-                                                <td class="p-4 font-medium">Social activity</td>
-                                                <td class="p-4">
+                                                <td class="p-3 sm:p-4 font-medium">Social activity</td>
+                                                <td class="p-3 sm:p-4">
                                                     <ul class="list-disc pl-4 space-y-2">
-                                                        <li id="container-s0_q18" class="py-1">
-                                                            <strong class="text-blue-600 mr-2">18</strong><input type="text" name="s0_q18" class="fill-in-blank w-32" autocomplete="off">
+                                                        <li id="container-s0_q18" class="py-1 leading-loose">
+                                                            <strong class="text-blue-600 mr-1 sm:mr-2">18</strong><input type="text" name="s0_q18" class="fill-in-blank w-24 sm:w-32 mx-1" autocomplete="off">
                                                         </li>
-                                                        <li id="container-s0_q19" class="py-1">
-                                                            <strong class="text-blue-600 mr-2">19</strong><input type="text" name="s0_q19" class="fill-in-blank w-48" autocomplete="off">
+                                                        <li id="container-s0_q19" class="py-1 leading-loose">
+                                                            <strong class="text-blue-600 mr-1 sm:mr-2">19</strong><input type="text" name="s0_q19" class="fill-in-blank w-32 sm:w-48 mx-1" autocomplete="off">
                                                         </li>
                                                     </ul>
                                                 </td>
-                                                <td class="p-4">8 minutes</td>
+                                                <td class="p-3 sm:p-4">8 minutes</td>
                                             </tr>
                                             <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="p-4 font-medium">Conclusion</td>
-                                                <td class="p-4" colspan="2" id="container-s0_q20">
-                                                    nearly <strong class="text-blue-600 mx-2">20</strong><input type="text" name="s0_q20" class="fill-in-blank w-36" autocomplete="off">
+                                                <td class="p-3 sm:p-4 font-medium">Conclusion</td>
+                                                <td class="p-3 sm:p-4 leading-loose" colspan="2" id="container-s0_q20">
+                                                    nearly <strong class="text-blue-600 mx-1 sm:mx-2">20</strong><input type="text" name="s0_q20" class="fill-in-blank w-28 sm:w-36 mx-1" autocomplete="off">
                                                 </td>
                                             </tr>
                                         </tbody>
