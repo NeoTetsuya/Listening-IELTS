@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listening Test Simulator - P1 Test 9</title>
+    <title>Listening Test Simulator - P1 Test 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -88,6 +88,10 @@
             border-radius: 4px 4px 0 0;
             margin: 0 4px;
         }
+        .fill-in-blank.single-letter {
+            width: 60px;
+            text-transform: uppercase;
+        }
         .fill-in-blank:focus {
             outline: none;
             border-bottom: 2px solid #2563eb;
@@ -117,6 +121,7 @@
             font-size: 0.95rem;
             color: #1e3a8a;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: left;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-8px); }
@@ -179,6 +184,9 @@
             .fill-in-blank {
                 width: 120px;
             }
+            .fill-in-blank.single-letter {
+                width: 50px;
+            }
         }
     </style>
 </head>
@@ -193,7 +201,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 9</span></h1>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P1 Test 1</span></h1>
         </div>
         <div class="flex items-center space-x-5">
             <div class="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
@@ -248,7 +256,7 @@
                             <span class="mx-1 text-slate-300">/</span>
                             <span id="total-time">0:00</span>
                         </div>
-                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/9.1.mp3" preload="metadata"></audio>
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/14.1.mp3" preload="metadata"></audio>
                     </div>
                 </div>
             </div>
@@ -256,7 +264,7 @@
                 <div id="section-tabs" class="flex space-x-2">
                     <!-- Section buttons will be loaded here by JS -->
                 </div>
-                <button id="transcript-btn" class="px-4 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <button id="transcript-btn" class="px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -301,41 +309,52 @@
         </div>
         <div class="p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-lg" id="transcript-content">
             <div class="space-y-5 max-w-3xl mx-auto">
-                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Tourism Survey</h4>
+                <h4 class="text-2xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Birmingham Exhibition</h4>
 
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Hello?</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Hi, good morning, this is Talia from Parrot Bay Travel Agency. Is <span class="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1 uppercase tracking-wider">Example</span> Robert Goddard there?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Yes, speaking.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I’m so sorry that I made such an early phone call, and i’m calling to ask a few questions about your most recent vacation - could i have five minutes of your time?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Sure thing.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Great, thanks. Now, I see here that you visited Melbourne. Was this your first visit to Melbourne?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> No, I have actually been there <mark class="answer-highlight">twice before</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q1]</span>.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I see. Now, what would you say was your favorite part about Melbourne?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Well, I did like seeing the exotic wildlife, and there are great sites to see, but i have to say I was most impressed by the <mark class="answer-highlight">amazing weather</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q2]</span>.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Yeah, the weather there is amazing. Which of the sites listed as part of our official tour did you see, and of those, which was your favorite?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> First I saw the theatre, which was beautifully designed. It was not nearly as cool as the <mark class="answer-highlight">Town Hall</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q3]</span> though - the building is a huge part of Melbourne’s history. Definitely my favorite. I saw the aquarium too, but wasn’t too impressed.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I see. Yes, people often have great reviews of Town Hall. Now I would like to ask you about your dining experience. Did you enjoy the food there?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Absolutely - I love it!</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I’m glad to hear it. Could you tell me a little bit about what you most enjoyed about the food?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Being such an international city, I loved the <mark class="answer-highlight">variety</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q4]</span> - I could find any type of food I wanted. Whether I wanted seafood, burgers, or anything else, you name it and they had it.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Did you drive to Melbourne?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> No, I flew. I thought about going by train, but the interest of time I decided to go by <mark class="answer-highlight">plane</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span>.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Right, I see. And would you mind telling me whether you are under 20, between the ages of 20 and 40, or older than 40?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Er, it would be nice if I were still under 20. My vacation probably would have been quite different. Actually though, I just <mark class="answer-highlight">turned 41</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span> last week.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> Oh, happy birthday! So did you treat yourself and fly first class?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Ha! No way. I would love to have a budget that high. I’m more in the <mark class="answer-highlight">mid-range</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span> income level. I wasn’t always though - I spent much of my life in a low-income household.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I see. That answers my next question then, of income level. And what was the purpose of this visit?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> I had to go there on business a lot before and decided I would go there for <mark class="answer-highlight">tourism</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span> this time.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I see. And what is your occupation?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> I am mainly a <mark class="answer-highlight">computer programmer</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span>. I also write for a travel magazine on the side, which is why i visited Melbourne before, but it’s not my main source of income.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I see. Wow, it sounds like you work a lot!</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> Yes, I am very busy, which is exactly why I took a nice week-long vacation to Melbourne.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I completely agree. Would you care to comment on your accommodation?</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> My hotel was <mark class="answer-highlight">good value</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span>. Staying in the city can get really expensive, so it was nice to find such a good price for the location and quality. I’m glad I didn’t end up in some cheap motel in the middle of nowhere.</p>
-                <p><strong class="text-green-700 font-semibold">Woman:</strong> I’m glad you didn’t either. Well, thank you for taking part in our survey, and I’m glad you enjoyed your vacation!</p>
-                <p><strong class="text-blue-700 font-semibold">Man:</strong> No problem. Take care!</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Good morning, you’re through to the events coordinator at the Birmingham City Council, how may I help you?</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Hello there, my husband and I are interested in <span class="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1 uppercase tracking-wider">Example</span> purchasing tickets to the automobile exhibition, but I couldn’t ﬁnd many details about it on your website, and I was wondering whether you could provide me with some more information. Does it open in June?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Yes, of course, Madam. The exhibition will take place during <mark class="answer-highlight">July</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q1]</span>, and will showcase the history of automobiles from the very ﬁrst commercial car in the late 1800s all the way through to the present day.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Is the exhibition open for the duration of July?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, Madam, the exhibition will last <mark class="answer-highlight">3 days</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q2]</span>, from the 1st of July to the 3rd of July, and then the cars will be taken to another exhibition.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Okay. Does the exhibition focus on a certain manufacturer?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, it will showcase a wide range of manufacturers.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Wonderful! I’m ever so fed up of going to these shows and only seeing one manufacturer. Are there any opportunities to sit in or even drive the cars?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> There will be many opportunities for you to sit in the cars; however, some of the cars will only be available to observe. We are yet to be told whether any of the antique cars will be available to drive, however there will certainly be an opportunity to <mark class="answer-highlight">test driving</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q3]</span> some of the more modern cars on a purpose-built track.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> That sounds like great fun! I mustn’t forget to bring my camera, or my husband will never forgive me!</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I’m afraid to say that <mark class="answer-highlight">cameras</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q4]</span> are actually strictly not allowed to bring into the exhibition. There will however be a section where a professional photographer will be available to take photos of you sitting in a car in period clothing.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Well, that sounds like it could be fun, but I assume the photos won’t be free.</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> On the contrary, one free photograph is included within every ticket, but each photo after this will cost £5.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> That’s a nice surprise, not many things are free anymore. I’ve been asking around about the ticket prices, but I haven’t yet had a deﬁnite answer. Is it correct that the tickets are £100 whether you buy them now or on arrival?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I’m afraid not. If you buy the ticket in advance the price is <mark class="answer-highlight">£110</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q5]</span>, but it’s £165 on the door.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Oh goodness! I suppose I’d best pay for them now then. Is it possible to buy tickets from you now over the phone?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Yes, of course, Madam. I’ll transfer you to the Box Oﬃce Manager, Mark <mark class="answer-highlight">Edgeworth</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q6]</span>, that’s E-D-G-E-W-O-R-T-H, and he will probably need to take your credit card details and some personal details.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Yes, that’s ﬁne. Before you transfer me, I just need to ask a few more questions. Will the exhibition be held in the Birmingham Exhibition Centre? I think that’s where I went last time.</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> No, Madam, the Birmingham Exhibition Centre is currently undergoing some renovations, so this year all exhibitions will be held in the <mark class="answer-highlight">Summer</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q7]</span> Palace.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Summer Palace? I’m not entirely sure where that is.</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Well, it’s not too far from <mark class="answer-highlight">city centre</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q8]</span>. Once you’re in the centre, you should be able to ﬁnd signs for the palace. If not, most people in Birmingham will be able to direct you.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Hmm...neither my husband nor I am particularly good with directions. Is there anywhere I can find this information on the Internet?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> Our website will give you an address. Perhaps you could visit www.<mark class="answer-highlight">directions</mark><span class="text-sm font-bold text-gray-400 ml-1">[Q9]</span>.com for more detailed information, and they should be able to provide you with step-by-step instructions.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> Okay and is this the best way to contact you, by phone?</p>
+                <p><strong class="text-blue-700 font-semibold">Events Coordinator:</strong> I think the most convenient way to contact us is <mark class="answer-highlight">enquiring online</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q10]</span>, which is much simpler than having to dial various diﬀerent numbers to reach the right person! Unless you have any more questions, I’ll transfer you now.</p>
+                <p><strong class="text-green-700 font-semibold">Julie:</strong> No, that’s great! Thank you for your help.</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[60] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
     </div>
 </div>
 
@@ -344,16 +363,16 @@
     const vocabulary = {}; 
 
     const explanations = {
-        s0_q1: "The speaker mentions this is his third time visiting, so the total number of visits is three times.",
-        s0_q2: "He says the best thing about the city is the amazing weather.",
-        s0_q3: "His favourite attraction is identified as the Town Hall.",
-        s0_q4: "When asked about dining, he praises the variety of options available.",
-        s0_q5: "He confirms he traveled to the destination by plane.",
-        s0_q6: "He indicates his age falls into the over forty group.",
-        s0_q7: "His income level is classified as mid-range.",
-        s0_q8: "In addition to business, the other purpose of his visit is tourism.",
-        s0_q9: "He has two occupations: a computer programmer and a writer for a travel magazine.",
-        s0_q10: "His opinion on the cost of accommodation is that it offers good value."
+        s0_q1: "The Events Coordinator mentions that 'The exhibition will take place during July'.",
+        s0_q2: "She confirms the duration by stating 'the exhibition will last 3 days'.",
+        s0_q3: "She notes that 'there will certainly be an opportunity to test driving some of the more modern cars'.",
+        s0_q4: "She states 'cameras are actually strictly not allowed to bring into the exhibition'.",
+        s0_q5: "She confirms the advance price by saying 'If you buy the ticket in advance the price is £110'.",
+        s0_q6: "She says she will transfer the call to 'the Box Office Manager, Mark Edgeworth'.",
+        s0_q7: "She explains that 'this year all exhibitions will be held in the Summer Palace.'",
+        s0_q8: "When asked about the location, she answers 'Well, it’s not too far from city centre.'",
+        s0_q9: "She directs Julie to 'visit www.directions.com for more detailed information'.",
+        s0_q10: "She advises that 'the most convenient way to contact us is enquiring online'."
     };
 
     const testData = {
@@ -363,46 +382,51 @@
                     title: "Section 1",
                     leftQuestions: `
                         <div class="h-full flex flex-col pt-2">
-                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">Visitor Survey</h3>
+                            <h3 class="text-2xl font-bold text-center text-gray-900 mb-6 uppercase tracking-wide">BIRMINGHAM EXHIBITION</h3>
                             
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 1-5</span>
                                 </div>
                                 <p class="mb-4 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                    Complete the form below. Write <strong>NO MORE THAN TWO WORDS</strong> for each answer.
+                                    Complete the notes below. Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong> for each answer.
                                 </p>
                                 
                                 <div class="space-y-6">
-                                    <div class="mb-2 text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-100 text-sm space-y-2">
-                                        <div><span class="font-bold text-blue-900 w-48 inline-block">Example:</span> Name: <span class="text-blue-900 font-medium">Robert Goddard</span></div>
-                                    </div>
-                                    
-                                    <div class="text-gray-800 font-bold mb-2 pt-2">Destination: <span class="font-normal text-gray-700 ml-2">Melbourne</span></div>
-                                    
                                     <div class="q-item" id="container-s0_q1">
-                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-64 mb-1 sm:mb-0">Total number of visits:</span>
-                                        <span><strong class="text-blue-600 mx-1">1</strong><input type="text" name="s0_q1" class="fill-in-blank w-36" autocomplete="off"></span>
+                                        <span class="font-bold text-gray-800">Open in:</span>
+                                        <span><strong class="text-blue-600 mx-1">1</strong><input type="text" name="s0_q1" class="fill-in-blank w-40" autocomplete="off"></span>
                                     </div>
                                     
                                     <div class="q-item" id="container-s0_q2">
-                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-64 mb-1 sm:mb-0">Best thing about the city:</span>
+                                        <span class="font-bold text-gray-800">Length of exhibition:</span>
                                         <span><strong class="text-blue-600 mx-1">2</strong><input type="text" name="s0_q2" class="fill-in-blank w-40" autocomplete="off"></span>
                                     </div>
 
+                                    <div class="text-gray-700 font-medium pl-3 border-l-4 border-blue-300 py-1 my-3 bg-blue-50/50 rounded-r-md">
+                                        A wide range of manufacturers will be showcased.
+                                    </div>
+
                                     <div class="q-item" id="container-s0_q3">
-                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-64 mb-1 sm:mb-0">Favourite attraction:</span>
-                                        <span><strong class="text-blue-600 mx-1">3</strong><input type="text" name="s0_q3" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800">Some cars are available to observe and others are for</span>
+                                        <span class="inline-block mt-1 sm:mt-0"><strong class="text-blue-600 mx-1">3</strong><input type="text" name="s0_q3" class="fill-in-blank w-48" autocomplete="off"></span>
                                     </div>
 
                                     <div class="q-item" id="container-s0_q4">
-                                        <span class="font-bold text-gray-800 block mb-1">Best thing about the destination's dining options:</span>
-                                        <span class="block sm:inline-block sm:mt-2"><strong class="text-blue-600 mx-1">4</strong><input type="text" name="s0_q4" class="fill-in-blank w-48" autocomplete="off"></span>
+                                        <span class="text-gray-800">The</span>
+                                        <span><strong class="text-blue-600 mx-1">4</strong><input type="text" name="s0_q4" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800">is prohibited to take into the museum.</span>
+                                    </div>
+                                    
+                                    <div class="text-gray-700 font-medium pl-3 border-l-4 border-blue-300 py-1 my-3 bg-blue-50/50 rounded-r-md">
+                                        Every ticket includes one free photo.
                                     </div>
 
                                     <div class="q-item" id="container-s0_q5">
-                                        <span class="font-bold text-gray-800 block sm:inline-block sm:w-64 mb-1 sm:mb-0">Method of transport to destination:</span>
-                                        <span class="block sm:inline-block sm:mt-2">by <strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-36" autocomplete="off"></span>
+                                        <span class="font-bold text-gray-800">Price of the ticket:</span>
+                                        <span class="text-gray-800 font-medium ml-1">£</span>
+                                        <span><strong class="text-blue-600 mx-1">5</strong><input type="text" name="s0_q5" class="fill-in-blank w-32" autocomplete="off"></span>
+                                        <span class="text-gray-800 ml-1">(in advance).</span>
                                     </div>
                                 </div>
                             </div>
@@ -417,42 +441,31 @@
                                 
                                 <div class="space-y-6 flex-1 mt-2">
                                     <div class="q-item" id="container-s0_q6">
-                                        <span class="font-bold text-gray-800 w-48 inline-block">Age group:</span>
-                                        <span><strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800">Transfer to Mark</span>
+                                        <span class="inline-block mt-1 sm:mt-0"><strong class="text-blue-600 mx-1">6</strong><input type="text" name="s0_q6" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800 ml-1">(Box Office Manager).</span>
                                     </div>
                                     
                                     <div class="q-item border-t pt-5 border-gray-100" id="container-s0_q7">
-                                        <span class="font-bold text-gray-800 w-48 inline-block">Income level:</span>
-                                        <span><strong class="text-blue-600 mx-1">7</strong><input type="text" name="s0_q7" class="fill-in-blank w-32" autocomplete="off"></span>
+                                        <span class="text-gray-800">Held in the</span>
+                                        <span><strong class="text-blue-600 mx-1">7</strong><input type="text" name="s0_q7" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800">Palace this year.</span>
                                     </div>
                                     
-                                    <div class="border-t pt-5 border-gray-100">
-                                        <span class="font-bold text-gray-800 mb-3 inline-block">Purpose of visit:</span>
-                                        <ul class="list-disc pl-9 space-y-3 text-gray-700">
-                                            <li>on business</li>
-                                            <li class="q-item" id="container-s0_q8">
-                                                <strong class="text-blue-600 mx-1">8</strong><input type="text" name="s0_q8" class="fill-in-blank w-40" autocomplete="off">
-                                            </li>
-                                        </ul>
+                                    <div class="q-item border-t pt-5 border-gray-100" id="container-s0_q8">
+                                        <span class="text-gray-800">Not far from</span>
+                                        <span><strong class="text-blue-600 mx-1">8</strong><input type="text" name="s0_q8" class="fill-in-blank w-48" autocomplete="off"></span>
                                     </div>
                                     
-                                    <div class="border-t pt-5 border-gray-100">
-                                        <span class="font-bold text-gray-800 mb-3 inline-block">Occupation:</span>
-                                        <ul class="list-disc pl-9 space-y-3 text-gray-700">
-                                            <li class="q-item" id="container-s0_q9">
-                                                <strong class="text-blue-600 mx-1">9</strong><input type="text" name="s0_q9" class="fill-in-blank w-48" autocomplete="off">
-                                            </li>
-                                            <li>writer for a travel magazine</li>
-                                        </ul>
+                                    <div class="q-item border-t pt-5 border-gray-100" id="container-s0_q9">
+                                        <span class="text-gray-800">Website: www.</span>
+                                        <span class="inline-block"><strong class="text-blue-600 mx-1">9</strong><input type="text" name="s0_q9" class="fill-in-blank w-40" autocomplete="off"></span>
+                                        <span class="text-gray-800">.com</span>
                                     </div>
                                     
-                                    <div class="border-t pt-5 border-gray-100">
-                                        <span class="font-bold text-gray-800 mb-3 inline-block">Opinion of cost of accommodation:</span>
-                                        <ul class="list-disc pl-9 space-y-3 text-gray-700">
-                                            <li class="q-item" id="container-s0_q10">
-                                                <strong class="text-blue-600 mx-1">10</strong><input type="text" name="s0_q10" class="fill-in-blank w-32" autocomplete="off">
-                                            </li>
-                                        </ul>
+                                    <div class="q-item border-t pt-5 border-gray-100" id="container-s0_q10">
+                                        <span class="text-gray-800">Best way to contact:</span>
+                                        <span class="inline-block mt-1 sm:mt-0"><strong class="text-blue-600 mx-1">10</strong><input type="text" name="s0_q10" class="fill-in-blank w-48" autocomplete="off"></span>
                                     </div>
                                 </div>
                                 <!-- Check Answers Button container gets appended here -->
@@ -465,16 +478,16 @@
     };
 
     const answers = {
-        s0_q1: "three times|three", 
-        s0_q2: "amazing weather", 
-        s0_q3: "town hall|the town hall", 
-        s0_q4: "variety", 
-        s0_q5: "plane|a plane", 
-        s0_q6: "over forty|over 40", 
-        s0_q7: "mid-range|mid range", 
-        s0_q8: "tourism", 
-        s0_q9: "computer programmer|a computer programmer", 
-        s0_q10: "good value"
+        s0_q1: "july", 
+        s0_q2: "three days|3 days", 
+        s0_q3: "test driving", 
+        s0_q4: "camera|cameras", 
+        s0_q5: "110", 
+        s0_q6: "edgeworth", 
+        s0_q7: "summer", 
+        s0_q8: "city centre", 
+        s0_q9: "directions", 
+        s0_q10: "enquiring online"
     };
 
     // --- APPLICATION LOGIC ---
@@ -506,6 +519,13 @@
             transcriptModalContent: document.getElementById('transcript-modal-content'),
             closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
             transcriptBtn: document.getElementById('transcript-btn'),
+
+            // Alert Elements
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
 
             init() {
                 this.setupEventListeners();
@@ -582,10 +602,31 @@
                 });
 
                 // Transcript Modal Events
-                this.transcriptBtn.addEventListener('click', () => this.openTranscriptModal());
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
                 this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
                 this.transcriptModal.addEventListener('click', (e) => {
                    if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                // Alert Modal Events
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
                 });
 
                 // Input delegator for saving answers and UI styling
@@ -694,11 +735,31 @@
                     this.transcriptModal.classList.add('hidden');
                 }, 200);
             },
+
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
             
             handleInput(e) {
                 if (e.target.name && e.target.type === 'text') {
                     this.userAnswers[e.target.name] = e.target.value;
                     e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
                 }
             },
 
@@ -716,10 +777,51 @@
                 if (this.answersChecked[exerciseKey]) {
                     this.answersChecked[exerciseKey] = false;
                     this.loadContent();
+                    this.updateTranscriptState();
                     return;
                 }
+
+                // Check if all blanks are filled
+                const [startQ, endQ] = range.split('-').map(Number);
+                let allAnswered = true;
+                for (let i = startQ; i <= endQ; i++) {
+                    const qId = `${prefix}${i}`;
+                    const answer = (this.userAnswers[qId] || "").trim();
+                    if (answer === "") {
+                        allAnswered = false;
+                        break;
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks before checking your answers.");
+                    return;
+                }
+
                 this.answersChecked[exerciseKey] = true;
                 this.showExerciseAnswers(exerciseKey, range, prefix);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
             },
 
             loadContent() {
@@ -748,6 +850,9 @@
                         this.showExerciseAnswers(exerciseKey, `${ex.startQ}-${ex.endQ}`, ex.prefix);
                     }
                 });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
             },
             
             getReadingExerciseTypes() {
@@ -761,15 +866,12 @@
 
                 exercises.forEach(exercise => {
                     const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
-                    const isChecked = this.answersChecked[exerciseKey];
-                    const buttonText = isChecked ? 'Reset Answers' : 'Check Answers';
-                    const buttonColor = isChecked ? 'bg-gray-800 hover:bg-gray-900' : 'bg-blue-600 hover:bg-blue-700';
 
                     const buttonContainer = document.createElement('div');
                     buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
                     buttonContainer.innerHTML = `
-                        <button class="check-exercise-btn ${buttonColor} text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
-                            ${buttonText}
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-range="${exercise.startQ}-${exercise.endQ}" data-prefix="${exercise.prefix}">
+                            Check Answers
                         </button>
                     `;
 
@@ -817,13 +919,38 @@
                     }
                 }
 
-                // Update Button State
-                const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
-                if (btn) {
-                    btn.textContent = 'Reset Answers';
-                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
-                }
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        let allAnswered = true;
+                        for (let i = ex.startQ; i <= ex.endQ; i++) {
+                            const qId = `${ex.prefix}${i}`;
+                            const answer = (this.userAnswers[qId] || "").trim();
+                            if (answer === "") {
+                                allAnswered = false;
+                                break;
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
             },
 
             initSplitter() {
