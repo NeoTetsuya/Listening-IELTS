@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P3 Test 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 16px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; 
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank.single-letter {
+            width: 50px;
+            text-transform: uppercase;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; 
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; 
+            }
+            .splitter {
+                display: none; 
+            }
+            .pane {
+                padding: 1rem;
+                overflow-y: visible; 
+                height: auto;
+            }
+            #left-pane {
+                border-bottom: 2px dashed #cbd5e1;
+                padding-bottom: 2rem;
+            }
+            .bg-white.p-6 {
+                padding: 1.25rem !important; 
+            }
+            .fill-in-blank {
+                width: 100px;
+            }
+            .fill-in-blank.single-letter {
+                width: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center gap-2 sm:space-x-3">
+            <div class="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P3 Test 1</span></h1>
+            <h1 class="text-base font-bold text-gray-800 sm:hidden">Listening <span class="text-blue-600">P3 T1</span></h1>
+        </div>
+        <div class="flex items-center gap-2 sm:space-x-5">
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Increase Font Size">A+</button>
+            </div>
+            <div class="hidden sm:block text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-2 sm:px-3 py-1 rounded-full">Part 3</div>
+        </div>
+    </header>
+
+    <main id="content-panes" class="content-panes">
+        <div id="left-pane" class="pane"></div>
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+        <div id="right-pane" class="pane"></div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 px-3 sm:px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto gap-2">
+            <div class="flex items-center gap-2 sm:space-x-6 w-full min-w-0">
+                <div id="passage-indicator" class="hidden md:block text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 3 of 4
+                </div>
+                <div class="w-full max-w-lg mt-1 sm:mt-0">
+                    <div class="flex items-center space-x-2 sm:space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-2 sm:px-4 py-2 h-10 sm:h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-3 h-3 sm:w-4 sm:h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 sm:h-2 bg-gray-200 rounded-full group-hover:h-2.5 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-[10px] sm:text-xs font-semibold text-slate-500 shrink-0 w-[3.5rem] sm:w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-0.5 sm:mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/14.3.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2 hidden sm:flex"></div>
+                <button id="transcript-btn" class="px-3 sm:px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="sm:hidden">Script</span>
+                    <span class="hidden sm:inline">Transcript</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] sm:h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl shrink-0">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-4 sm:p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-base sm:text-lg" id="transcript-content">
+            <div class="space-y-4 max-w-3xl mx-auto">
+                <h4 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Professor Morgan's Lecture</h4>
+                
+                <p><strong>Jim:</strong> Jane, what did you think of Professor Morgan’s lecture?</p>
+                <p><strong>Jim:</strong> I don’t know about you, but I find it incredibly difficult to believe that light influences the environment as much as he says.</p>
+                <p><strong>Jim:</strong> I’ve never seen any journal articles, websites or anything that verifies his argument. It’s stupid.</p>
+                <p><strong>Jane:</strong> On the contrary, I’ve seen a great deal of research supporting his argument from a wide range of renowned scientists.</p>
+                <p><strong>Jane:</strong> Have you looked at the recommended textbook listed on the course outline given to us at the beginning of the semester?</p>
+                <p><strong>Jane:</strong> All the information is in there, perhaps you’ve just been looking in the wrong places.</p>
+                <p><strong>Jim:</strong> I never look at the course outlines, I have so many loose sheets of paper I tend to lose anything I’m given by the end of the day.</p>
+                <p><strong>Jim:</strong> What’s the textbook they recommend, and where can I get it from?</p>
+                <p><strong>Jim:</strong> I should probably go buy it soon; I’m already behind in the course.</p>
+                <p><strong>Jane:</strong> Yeah, you definitely should buy it, and our grades are more important this year!</p>
+                <p><strong>Jane:</strong> It’s called ‘The Influence of Light on the Environment’. You should be able to find it in the bookshop on campus.</p>
+                <p><strong>Jane:</strong> If not, they’ll order it within two weeks.</p>
+                <p><strong>Jane:</strong> In the meantime, you should read up on Ken Simpson’s work, he argues that in order to protect natural habitats, governments should endeavor to <mark class="answer-highlight">turn off lights</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q21]</span> in cities at night.</p>
+                <p><strong>Jim:</strong> Well that’s controversial; I doubt any government would be willing to do that any time soon.</p>
+                <p><strong>Jim:</strong> I imagine roads would become quite dangerous without street lighting.</p>
+                <p><strong>Jim:</strong> For this issue, Dave Kepler suggests they could just <mark class="answer-highlight">replace the existing lights</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q22]</span> with more environmentally friendly bulbs.</p>
+                <p><strong>Jim:</strong> They could even install solar-powered lights; that way, roads will be more eco-friendly while maintaining safety.</p>
+                <p><strong>Jim:</strong> Although I guess they wouldn’t be particularly effective in colder countries, especially during the winter.</p>
+                <p><strong>Jane:</strong> That’s quite a good idea actually.</p>
+                <p><strong>Jane:</strong> The price of solar power is supposed to be on par with electricity within the next few decades, and it was on the news this morning.</p>
+                <p><strong>Jane:</strong> I’ve also heard that, according to Sharon Grey, in countries with more sunlight, insect-eating animals tend to be <mark class="answer-highlight">smaller in size</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q23]</span>.</p>
+                <p><strong>Jane:</strong> Since there are fewer insects, and the remaining insects produced a smaller number of eggs.</p>
+                <p><strong>Jim:</strong> Yeah, I think I read somewhere that sunlight also has a negative effect on the quality of water, but I’m not sure I believe it.</p>
+                <p><strong>Jim:</strong> In many hot countries, particularly developing countries, there is a lot of water pollution caused by factories rather than sunlight.</p>
+                <p><strong>Jim:</strong> Nevertheless, Maria Jackson says that in direct sunlight, the surface of the water becomes more translucent, therefore it <mark class="answer-highlight">affects the amount of sunlight that aquatic insects can absorb</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q24]</span>.</p>
+                <p><strong>Jim:</strong> Not much research has been undertaken to prove Jackson’s theory, but it seems to have been widely accepted anyway.</p>
+                <p><strong>Jane:</strong> I’ve never heard of that. I’ll have to look it up on Google.</p>
+                <p><strong>Jane:</strong> The only other theory I’ve studied is Barbara Swallow’s study on how declined insect population adversely affects the <mark class="answer-highlight">frog population</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q25]</span>.</p>
+                <p><strong>Jane:</strong> Not that I’m complaining... I hate insects, especially spiders.</p>
+                <p><strong>Jim:</strong> You have arachnophobia? I never would have guessed.</p>
+                <p><strong>Jim:</strong> Didn’t your brother have a pet black widow spider?</p>
+                <p><strong>Jane:</strong> Yes, he did, and I hated it. It escaped from its cage once and we never found it.</p>
+                <p><strong>Jane:</strong> I had nightmares for months.</p>
+                <p><strong>Jane:</strong> Okay, now I’m getting goose bumps, let’s change the subject.</p>
+                <p><strong>Jane:</strong> What’s your stance on natural and artificial light?</p>
+                <p><strong>Jim:</strong> Honestly, I’m not sure <mark class="answer-highlight">it makes much difference</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q26]</span> which one you use; species will die out either way.</p>
+                <p><strong>Jim:</strong> I think the real argument we should consider is global warming and protection or replacement of finite fuels.</p>
+                <p><strong>Jim:</strong> Solar power provides us with an incredible opportunity to replace electricity, and governments should definitely increase spending on research in this field.</p>
+                <p><strong>Jim:</strong> The theories discussed in our lectures, like Simpson’s and Grey’s, are so vague and <mark class="answer-highlight">lack proof</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q27]</span>, so I don’t understand why we even study them.</p>
+                <p><strong>Jane:</strong> I see what you mean. I don’t like learning unsupported theories for exams, and I’d rather spend my time learning something else.</p>
+                <p><strong>Jane:</strong> For example, I’d be much more interested in studying the <mark class="answer-highlight">animals in safari parks</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q28-30]</span> than researching migratory birds, particularly the effect of tourists on the quality of life of animals.</p>
+                <p><strong>Jane:</strong> As we know, every year thousands of visitors will drive in their own vehicles or ride in vehicles provided by the facility to observe freely roaming animals.</p>
+                <p><strong>Jim:</strong> Yeah, that would be really interesting!</p>
+                <p><strong>Jim:</strong> Especially those animals living in more <mark class="answer-highlight">tropical countries</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q28-30]</span>, like Borneo.</p>
+                <p><strong>Jim:</strong> Following on from that, I want to study how <mark class="answer-highlight">bringing animals over from foreign countries</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q28-30]</span> to put in our zoos affects their life expectancy.</p>
+                <p><strong>Jim:</strong> For example, do you remember when China sent pandas to Edinburgh Zoo?</p>
+                <p><strong>Jim:</strong> Apparently one of the pandas became depressed, but it was never explained why.</p>
+                <p><strong>Jim:</strong> To me, obviously, you can’t take an animal out of its natural habitat and put it in a cage on the other side of the world.</p>
+                <p><strong>Jim:</strong> It just doesn’t work...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
+    </div>
+</div>
+
+<script>
+    const explanations = {
+        s0_q21: "Ken Simpson argues that 'governments should endeavor to turn off lights in cities at night' which means lighting restrictions (A).",
+        s0_q22: "Dave Kepler suggests they could 'replace the existing lights with more environmentally friendly bulbs' which means alternative lighting (B).",
+        s0_q23: "Sharon Grey says 'insect-eating animals tend to be smaller in size' which matches impacts on the growth of animals (F).",
+        s0_q24: "Maria Jackson says direct sunlight 'affects the amount of sunlight that aquatic insects can absorb' matching impacts on water quality (G).",
+        s0_q25: "Barbara Swallow’s study on how 'declined insect population adversely affects the frog population' matches decline in the number of species (D).",
+        s0_q26: "Jim says: 'Honestly, I’m not sure it makes much difference which one you use' (A).",
+        s0_q27: "Jim says the theories 'are so vague and lack proof'. Jane agrees, saying 'I don't like learning unsupported theories' (C).",
+        s0_q28_30: "Jane is interested in 'animals in safari parks' (B). Jim wants to study animals in 'tropical countries' (E) and 'how bringing animals over from foreign countries to put in our zoos affects their life expectancy' (F)."
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 3",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-4 sm:mb-6 uppercase tracking-wide">Environment and Light Theories</h3>
+                            
+                            <!-- Matching Questions -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 21-25</span>
+                                </div>
+                                <p class="mb-2 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
+                                    What is the main opinion of each of the following people?<br>
+                                    Choose <strong>FIVE</strong> answers from the box and write the correct letter, <strong>A - G</strong>, next to questions 21-25.
+                                </p>
+                                
+                                <div class="border-2 border-gray-200 rounded-xl p-4 bg-gray-50 mb-6 mt-4">
+                                    <h4 class="font-bold mb-3 text-gray-800 border-b border-gray-200 pb-2">Opinions</h4>
+                                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+                                        <li class="flex"><strong class="mr-2 text-gray-900">A</strong> lighting restrictions</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">B</strong> alternative lighting</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">C</strong> reduce the number of insects</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">D</strong> decline in the number of species</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">E</strong> climate changes</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">F</strong> impacts on the growth of animals</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">G</strong> impacts on water quality</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q21">
+                                        <strong class="text-blue-600 mr-2 w-6">21</strong> 
+                                        <span class="w-36 text-gray-800">Ken Simpson</span>
+                                        <input type="text" name="s0_q21" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q22">
+                                        <strong class="text-blue-600 mr-2 w-6">22</strong> 
+                                        <span class="w-36 text-gray-800">Dave Kepler</span>
+                                        <input type="text" name="s0_q22" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q23">
+                                        <strong class="text-blue-600 mr-2 w-6">23</strong> 
+                                        <span class="w-36 text-gray-800">Sharon Grey</span>
+                                        <input type="text" name="s0_q23" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q24">
+                                        <strong class="text-blue-600 mr-2 w-6">24</strong> 
+                                        <span class="w-36 text-gray-800">Maria Jackson</span>
+                                        <input type="text" name="s0_q24" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q25">
+                                        <strong class="text-blue-600 mr-2 w-6">25</strong> 
+                                        <span class="w-36 text-gray-800">Barbara Swallow</span>
+                                        <input type="text" name="s0_q25" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Multiple Choice 26 & 27 -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 26 and 27</span>
+                                </div>
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
+                                    Choose the correct letter, <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.
+                                </p>
+                                
+                                <div class="space-y-6">
+                                    <div class="q-item" id="container-s0_q26">
+                                        <div class="font-semibold text-gray-800 text-base sm:text-lg mb-3">
+                                            <span class="text-blue-600 mr-1">26.</span> What does Jim think about the difference among species in natural and artificial light?
+                                        </div>
+                                        <div class="space-y-2 text-gray-700 pl-1 sm:pl-2">
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q26" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">It makes no difference.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q26" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Species will die out in natural light.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q26" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">Species will die out in artificial light.</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="q-item" id="container-s0_q27">
+                                        <div class="font-semibold text-gray-800 text-base sm:text-lg mb-3">
+                                            <span class="text-blue-600 mr-1">27.</span> One reason why Jim and Jane felt unsatisfied about the theories discussed in the lecture was that
+                                        </div>
+                                        <div class="space-y-2 text-gray-700 pl-1 sm:pl-2">
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q27" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">governments didn't increase any spending on them.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q27" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">most theories had nothing to do with the exam.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q27" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">many theories lack solid proof in the field.</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-4 sm:pt-16">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 28-30</span>
+                                </div>
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
+                                    Choose <strong>THREE</strong> letters, <strong>A - G</strong>.<br>
+                                </p>
+                                
+                                <div class="q-item space-y-4 mb-4 flex-1" id="container-s0_q28_30">
+                                    <p class="font-semibold text-gray-800 text-base sm:text-lg">Which THREE topics are they interested in studying in the future?</p>
+                                    <div class="pl-0 sm:pl-2 mt-4 space-y-2 text-gray-700">
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                <span class="text-sm sm:text-[1.05rem]">quality of life tourism</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                <span class="text-sm sm:text-[1.05rem]">wildlife park animals</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                <span class="text-sm sm:text-[1.05rem]">migration birds</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="d" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">D</span>
+                                                <span class="text-sm sm:text-[1.05rem]">animals living in rural areas</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="e" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">E</span>
+                                                <span class="text-sm sm:text-[1.05rem]">animals living in tropical climate</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="f" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">F</span>
+                                                <span class="text-sm sm:text-[1.05rem]">the impact of different environment on animals</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                            <input type="checkbox" name="s0_q28_30" value="g" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 shrink-0">
+                                            <div class="flex items-start space-x-3">
+                                                <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">G</span>
+                                                <span class="text-sm sm:text-[1.05rem]">pandas in the zoo</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q21: "a", 
+        s0_q22: "b", 
+        s0_q23: "f", 
+        s0_q24: "g", 
+        s0_q25: "d", 
+        s0_q26: "a", 
+        s0_q27: "c", 
+        s0_q28_30: ["b", "e", "f"]
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 16,
+
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
+                });
+
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                document.body.addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox' || e.target.type === 'radio') this.handleInput(e);
+                });
+                
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.keys);
+                    }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 12) this.currentFontSize = 12;
+                if (this.currentFontSize > 24) this.currentFontSize = 24;
+                
+                document.documentElement.style.fontSize = `${this.currentFontSize}px`;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
+
+            handleInput(e) {
+                const name = e.target.name;
+                
+                if (e.target.type === 'checkbox') {
+                    const checkedBoxes = Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+                    const maxAllowed = Array.isArray(answers[name]) ? answers[name].length : 1;
+                    
+                    if (checkedBoxes.length > maxAllowed) {
+                        e.target.checked = false; 
+                        return;
+                    }
+                    
+                    this.userAnswers[name] = checkedBoxes;
+                    
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
+                        cb.parentElement.classList.remove('bg-green-50', 'border-green-400', 'bg-red-50', 'border-red-400', 'border-green-400', 'border-dashed');
+                        cb.parentElement.classList.add('border-transparent');
+                    });
+                    this.updateCheckButtonsState();
+                    
+                } else if (e.target.type === 'radio') {
+                    this.userAnswers[name] = e.target.value;
+                    
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                        r.parentElement.classList.remove('bg-green-50', 'border-green-400', 'bg-red-50', 'border-red-400', 'border-green-400', 'border-dashed', 'bg-blue-50', 'border-blue-400');
+                        r.parentElement.classList.add('border-transparent');
+                    });
+                    
+                    e.target.parentElement.classList.add('bg-blue-50', 'border-blue-400');
+                    this.updateCheckButtonsState();
+
+                } else if (e.target.type === 'text') {
+                    this.userAnswers[name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    if (Array.isArray(value)) {
+                        value.forEach(val => {
+                            const cb = document.querySelector(`input[name="${qId}"][value="${val}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                    } else {
+                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                        if (inputs.length > 0) {
+                            if (inputs[0].type === 'radio') {
+                                const radio = document.querySelector(`input[name="${qId}"][value="${value}"]`);
+                                if (radio) {
+                                    radio.checked = true;
+                                    radio.parentElement.classList.add('bg-blue-50', 'border-blue-400');
+                                }
+                            } else if (inputs[0].type === 'text') {
+                                inputs[0].value = value;
+                            }
+                        }
+                    }
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, keysStr) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    this.updateTranscriptState();
+                    return;
+                }
+
+                const keys = keysStr.split(',');
+                let allAnswered = true;
+                for (const qId of keys) {
+                    if (Array.isArray(answers[qId])) {
+                        const userVals = this.userAnswers[qId] || [];
+                        if (userVals.length !== answers[qId].length) {
+                            allAnswered = false;
+                            break;
+                        }
+                    } else {
+                        const answer = (this.userAnswers[qId] || "").trim();
+                        if (answer === "") {
+                            allAnswered = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks and select required choices before checking your answers.");
+                    return;
+                }
+
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(keysStr);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+                this.sectionTabsContainer.innerHTML = `<button class="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="0">Section 3</button>`;
+                this.passageIndicator.textContent = `Section 3 of 4`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(ex.keys.join(','));
+                    }
+                });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'all_questions', keys: ['s0_q21', 's0_q22', 's0_q23', 's0_q24', 's0_q25', 's0_q26', 's0_q27', 's0_q28_30'], title: 'Questions 21-30' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+                    const keysStr = exercise.keys.join(',');
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-keys="${keysStr}">
+                            Check Answers
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(keysStr) {
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+                const keys = keysStr.split(',');
+
+                for (const qId of keys) {
+                    let questionContainer = document.getElementById(`container-${qId}`);
+                    
+                    if (Array.isArray(answers[qId])) {
+                        // Checkboxes
+                        const userVals = this.userAnswers[qId] || [];
+                        const correctVals = answers[qId];
+                        
+                        document.querySelectorAll(`input[name="${qId}"]`).forEach(cb => {
+                            const isSelected = userVals.includes(cb.value);
+                            const isCorrect = correctVals.includes(cb.value);
+                            
+                            cb.parentElement.classList.remove('border-transparent');
+                            
+                            if (isSelected) {
+                                if (isCorrect) {
+                                    cb.parentElement.classList.add('bg-green-50', 'border-green-400');
+                                } else {
+                                    cb.parentElement.classList.add('bg-red-50', 'border-red-400');
+                                }
+                            } else if (isCorrect) {
+                                cb.parentElement.classList.add('border-green-400', 'border-dashed');
+                            }
+                        });
+                        
+                        if (explanations[qId] && questionContainer) {
+                            const existingExpl = document.getElementById(`expl-${qId}`);
+                            if (!existingExpl) {
+                                const explDiv = document.createElement('div');
+                                explDiv.id = `expl-${qId}`;
+                                explDiv.className = 'explanation-box mt-3 mb-4';
+                                const formattedAnswer = correctVals.map(v => v.toUpperCase()).join(' & ');
+                                explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                questionContainer.insertAdjacentElement('afterend', explDiv);
+                            }
+                        }
+                    } else {
+                        // Fill in blanks & Radio
+                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                        if (inputs.length === 0) continue;
+
+                        if (inputs[0].type === 'radio') {
+                             const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                             const correctAnswer = answers[qId].toLowerCase();
+                             
+                             inputs.forEach(r => {
+                                const isSelected = r.value === userAnswer;
+                                const isCorrect = r.value === correctAnswer;
+                                
+                                r.parentElement.classList.remove('border-transparent', 'bg-blue-50', 'border-blue-400');
+                                
+                                if (isSelected) {
+                                    if (isCorrect) {
+                                        r.parentElement.classList.add('bg-green-50', 'border-green-400');
+                                    } else {
+                                        r.parentElement.classList.add('bg-red-50', 'border-red-400');
+                                    }
+                                } else if (isCorrect) {
+                                    r.parentElement.classList.add('border-green-400', 'border-dashed');
+                                }
+                             });
+                             
+                             if (explanations[qId] && questionContainer) {
+                                 const existingExpl = document.getElementById(`expl-${qId}`);
+                                 if (!existingExpl) {
+                                    const explDiv = document.createElement('div');
+                                    explDiv.id = `expl-${qId}`;
+                                    explDiv.className = 'explanation-box mt-3 mb-4';
+                                    explDiv.innerHTML = `<strong>Correct Answer: ${answers[qId].toUpperCase()}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                    questionContainer.insertAdjacentElement('afterend', explDiv);
+                                 }
+                            }
+                        } else if (inputs[0].type === 'text') {
+                            const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                            const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                            const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                            const input = inputs[0];
+                            input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                            if (isCorrect) {
+                                input.classList.add('correct-answer-text');
+                            } else {
+                                input.classList.add('incorrect-answer-text');
+                            }
+
+                            if (explanations[qId] && questionContainer) {
+                                 const existingExpl = document.getElementById(`expl-${qId}`);
+                                 if (!existingExpl) {
+                                    const explDiv = document.createElement('div');
+                                    explDiv.id = `expl-${qId}`;
+                                    explDiv.className = 'explanation-box mt-3 mb-4';
+                                    const formattedAnswer = correctAnswersList[0].toUpperCase();
+                                    explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                    questionContainer.insertAdjacentElement('afterend', explDiv);
+                                 }
+                            }
+                        }
+                    }
+                }
+
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        
+                        let allAnswered = true;
+                        for (const qId of ex.keys) {
+                            if (Array.isArray(answers[qId])) {
+                                const userVals = this.userAnswers[qId] || [];
+                                if (userVals.length !== answers[qId].length) {
+                                    allAnswered = false;
+                                    break;
+                                }
+                            } else {
+                                const answer = (this.userAnswers[qId] || "").trim();
+                                if (answer === "") {
+                                    allAnswered = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
