@@ -1,0 +1,14 @@
+# Backup files
+*.bak
+*.backup*
+*.backup_*
+index.html.backup*
+index.html.new
+index.html.enhanced
+index.html.rebuilt
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

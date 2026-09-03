@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test Simulator - P3 Test 5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --app-font-size: 16px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f3f4f6;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto; 
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 5px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #fdfdfd;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #94a3b8;
+        }
+        
+        .reading-passage {
+            font-family: 'Merriweather', serif;
+            line-height: 1.9;
+            color: #334155;
+            text-align: left;
+        }
+        .reading-passage p {
+            margin-bottom: 1rem;
+        }
+
+        .q-item {
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            width: 160px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+        }
+        .fill-in-blank.single-letter {
+            width: 50px;
+            text-transform: uppercase;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        .correct-answer-text {
+            border-bottom: 2px solid #22c55e !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #ef4444 !important;
+            color: #b91c1c !important;
+            background-color: #fef2f2 !important;
+            text-decoration: line-through;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a8a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .highlight-tooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0; 
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        @media (max-width: 768px) {
+            .content-panes {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; 
+            }
+            .splitter {
+                display: none; 
+            }
+            .pane {
+                padding: 1rem;
+                overflow-y: visible; 
+                height: auto;
+            }
+            #left-pane {
+                border-bottom: 2px dashed #cbd5e1;
+                padding-bottom: 2rem;
+            }
+            .bg-white.p-6 {
+                padding: 1.25rem !important; 
+            }
+            .fill-in-blank {
+                width: 100px;
+            }
+            .fill-in-blank.single-letter {
+                width: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="test-container" class="ielts-container">
+    <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-20 shadow-sm">
+        <div class="flex items-center gap-2 sm:space-x-3">
+            <div class="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M8.464 8.464a5 5 0 010 7.072m-2.828-9.9a9 9 0 010 12.728M12 14v5m0-11V6a2 2 0 114 0v2m-4 0a2 2 0 10-4 0v2" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Academic Listening <span class="text-blue-600 font-medium">| P3 Test 5</span></h1>
+            <h1 class="text-base font-bold text-gray-800 sm:hidden">Listening <span class="text-blue-600">P3 T5</span></h1>
+        </div>
+        <div class="flex items-center gap-2 sm:space-x-5">
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <button id="decrease-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded bg-white shadow-sm hover:bg-gray-100 text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold text-sm sm:text-base" title="Increase Font Size">A+</button>
+            </div>
+            <div class="hidden sm:block text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider bg-pink-100 text-pink-800 px-2 sm:px-3 py-1 rounded-full">Part 3</div>
+        </div>
+    </header>
+
+    <main id="content-panes" class="content-panes">
+        <div id="left-pane" class="pane"></div>
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-gray-400 rounded-full opacity-50"></div>
+        </div>
+        <div id="right-pane" class="pane"></div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 px-3 sm:px-6 py-3 z-20">
+        <div class="flex justify-between items-center max-w-7xl mx-auto gap-2">
+            <div class="flex items-center gap-2 sm:space-x-6 w-full min-w-0">
+                <div id="passage-indicator" class="hidden md:block text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                    Section 3 of 4
+                </div>
+                <div class="w-full max-w-lg mt-1 sm:mt-0">
+                    <div class="flex items-center space-x-2 sm:space-x-4 bg-white/90 backdrop-blur border border-gray-200/80 rounded-full px-2 sm:px-4 py-2 h-10 sm:h-12 shadow-sm hover:shadow transition-shadow duration-300">
+                        <button id="custom-play-btn" class="flex items-center justify-center flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 text-white focus:outline-none bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-full shadow-sm transform hover:scale-105 transition-all duration-200">
+                            <svg id="play-icon" class="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                            <svg id="pause-icon" class="w-3 h-3 sm:w-4 sm:h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                        </button>
+                        
+                        <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                            <div class="w-full h-1.5 sm:h-2 bg-gray-200 rounded-full group-hover:h-2.5 transition-all duration-200 relative overflow-hidden">
+                                <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 w-0 pointer-events-none transition-all duration-75"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-[10px] sm:text-xs font-semibold text-slate-500 shrink-0 w-[3.5rem] sm:w-[4.5rem] justify-end tabular-nums tracking-tight">
+                            <span id="current-time" class="text-blue-700">0:00</span>
+                            <span class="mx-0.5 sm:mx-1 text-slate-300">/</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <!-- Updated audio file -->
+                        <audio id="custom-audio-element" src="https://ielts-up.com/listening/10.3.mp3" preload="metadata"></audio>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:space-x-4 shrink-0">
+                <div id="section-tabs" class="flex space-x-2 hidden sm:flex"></div>
+                <button id="transcript-btn" class="px-3 sm:px-4 py-1.5 bg-gray-300 text-gray-500 cursor-not-allowed rounded-md text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-1.5 focus:outline-none" title="Check answers to unlock transcript">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="sm:hidden">Script</span>
+                    <span class="hidden sm:inline">Transcript</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<div id="highlight-tooltip" class="highlight-tooltip">Highlight Text</div>
+
+<div id="transcript-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden z-[70] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[95vh] sm:h-[80vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 bg-gray-50 rounded-t-2xl shrink-0">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                Audio Transcript
+            </h3>
+            <button id="close-transcript-modal" class="text-gray-400 hover:text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">&times;</button>
+        </div>
+        <div class="p-4 sm:p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed text-base sm:text-lg" id="transcript-content">
+            <div class="space-y-4 max-w-3xl mx-auto">
+                <h4 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 text-center uppercase tracking-wide border-b border-gray-200 pb-4">Football Research</h4>
+                
+                <p><strong>Tutor:</strong> Hi Bobby, go ahead and sit down. Tell me about your research project.</p>
+                <p><strong>Bobby:</strong> Well I decided to research football, and keys for success on a football team.</p>
+                <p><strong>Tutor:</strong> That sounds great. What are the guidelines for the test? Did the teacher talk to you about it in class?</p>
+                <p><strong>Bobby:</strong> No, everything is on a <mark class="answer-highlight">handout</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q21]</span> that was passed out. It says that the first draft is due at the end of next week, and the second and third are due later on in the month.</p>
+                <p><strong>Bobby:</strong> I don’t understand why we have to keep revising and fixing it. Is this assignment really that important?</p>
+                <p><strong>Tutor:</strong> Well, this project is a major requirement for passing 11th grade English and will <mark class="answer-highlight">go on your permanent record</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q22]</span>.</p>
+                <p><strong>Bobby:</strong> Oh really? Does that mean it will affect what English level I am placed in next year?</p>
+                <p><strong>Tutor:</strong> Well, not exactly. You need a good grade to move on, but it is your overall grade and teacher recommendation that determines what level of English you are placed in next year.</p>
+                <p><strong>Tutor:</strong> Anyway, tell me about your topic choice. Do you play football?</p>
+                <p><strong>Bobby:</strong> Well, actually it’s because <mark class="answer-highlight">my father loves the sport</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q23]</span>. He watches it every weekend.</p>
+                <p><strong>Tutor:</strong> Cool! It’s a good idea to report on something you’re interested in.</p>
+                <p><strong>Tutor:</strong> I see you worked very hard calling players and the head coach to talk so let’s see what information you got.</p>
+                <p><strong>Bobby:</strong> Well, you have to listen carefully to first call on the recording. It’s really hard to hear because the <mark class="answer-highlight">background noise is louder</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q24]</span> than the person’s voice.</p>
+                <p><strong>Tutor:</strong> Yes, it is a bit tough to discern. I’m afraid the player’s answer is <mark class="answer-highlight">too short</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q25]</span> as well. You will have to interview him again and try to get him to give a better answer.</p>
+                <p><strong>Bobby:</strong> Okay. I thought that might happen. I will call him again tomorrow.</p>
+                <p><strong>Tutor:</strong> Moving on, let’s look back at this question.</p>
+                <p><strong>Tutor:</strong> You asked, “Tell me about a time when you learned a major life lesson through playing football, and explain how that has shaped the person and player you have become now, and how you hope to pass on that lesson.”</p>
+                <p><strong>Tutor:</strong> It is a great idea for a question, but in an oral interview it is <mark class="answer-highlight">far too complex</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q26]</span>. I would advise you to break it up into multiple parts to get a better response.</p>
+                <p><strong>Bobby:</strong> I guess you’re right - I wouldn’t want to have to provide an answer to a question like that. I will simplify it.</p>
+                <p><strong>Bobby:</strong> I found that when I asked players this question, it took <mark class="answer-highlight">too much time</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q27]</span> because they were struggling to answer the question completely.</p>
+                <p><strong>Bobby:</strong> In fact, this is the question Joe Billings was answering when the tape ran out.</p>
+                <p><strong>Tutor:</strong> He did tend to ramble on all the questions, didn’t he?</p>
+                <p><strong>Bobby:</strong> He sure did.</p>
+                <p><strong>Tutor:</strong> I would recommend that when you go back and interview players again that you use a more sophisticated recording device.</p>
+                <p><strong>Tutor:</strong> This recording is <mark class="answer-highlight">spotty</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q28]</span>, which indicates that the equipment wasn’t working consistently.</p>
+                <p><strong>Bobby:</strong> Okay. I guess it probably wasn’t the best idea to use the sound recorder on my phone. Hey, could you give me some feedback on the content of the report itself?</p>
+                <p><strong>Tutor:</strong> Sure! Let’s start by focusing on your topic. While I like that you chose to cover football, it seems inexplicit.</p>
+                <p><strong>Tutor:</strong> The keys for success of a player and team is quite an interesting topic, but what is your thesis? That is to say, what conclusions can you draw from your research?</p>
+                <p><strong>Tutor:</strong> I would suggest coming up with a strong thesis statement and then shaping your report based on that.</p>
+                <p><strong>Bobby:</strong> Is it really <mark class="answer-highlight">too vague</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q29]</span>? I put a whole lot of facts into it.</p>
+                <p><strong>Bobby:</strong> I list the top 10 goal-scorers in football, and later on provide statistics for a few of the most famous coaches and their records as coaches.</p>
+                <p><strong>Tutor:</strong> I think that’s great that you included these facts, but I think you <mark class="answer-highlight">focused too much on the facts</mark> <span class="text-sm font-bold text-gray-400 ml-1">[Q30]</span> and not enough on connecting these facts to make your point.</p>
+                <p><strong>Bobby:</strong> Ah, I see. Okay. So it looks like I have quite a bit of work to do before the deadline!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alert-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-[80] transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900 mb-2">Incomplete Answers</h3>
+        <p id="alert-message" class="text-sm text-gray-500 mb-6">Please fill in all the blanks before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+            Got it
+        </button>
+    </div>
+</div>
+
+<script>
+    const explanations = {
+        s0_q21: "Bobby says 'everything is on a handout that was passed out'. (C)",
+        s0_q22: "The tutor states 'this project is a major requirement for passing 11th grade English and will go on your permanent record'. (A)",
+        s0_q23: "Bobby mentions 'actually it’s because my father loves the sport.' (B)",
+        s0_q24: "Bobby complains 'the background noise is louder than the person's voice'. (D - too noisy)",
+        s0_q25: "The tutor notes 'I’m afraid the player’s answer is too short as well'. (F - too short)",
+        s0_q26: "The tutor mentions regarding one of the questions: 'in an oral interview it is far too complex.' (G - too complicated)",
+        s0_q27: "Bobby explains about the question: 'it took too much time because they were struggling to answer'. (E - too long)",
+        s0_q28: "The tutor indicates 'This recording is spotty, which indicates that the equipment wasn’t working consistently.' (C - too unreliable)",
+        s0_q29: "Bobby asks 'Is it really too vague?' after the tutor suggests it is inexplicit. (A - too vague)",
+        s0_q30: "The tutor feedback on the report: 'I think you focused too much on the facts and not enough on connecting these facts'. (B - too factual)"
+    };
+
+    const testData = {
+        reading: {
+            sections: [
+                {
+                    title: "Section 3",
+                    leftQuestions: `
+                        <div class="h-full flex flex-col pt-2">
+                            <h3 class="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-4 sm:mb-6 uppercase tracking-wide">Football Research</h3>
+                            
+                            <!-- Multiple Choice 21 - 23 -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 21-23</span>
+                                </div>
+                                <p class="mb-4 sm:mb-6 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
+                                    Choose the correct letter, <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.
+                                </p>
+                                
+                                <div class="space-y-6">
+                                    <div class="q-item" id="container-s0_q21">
+                                        <div class="font-semibold text-gray-800 text-base sm:text-lg mb-3">
+                                            <span class="text-blue-600 mr-1">21.</span> Information on the test is from
+                                        </div>
+                                        <div class="space-y-2 text-gray-700 pl-1 sm:pl-2">
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q21" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">the teacher.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q21" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">a class.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q21" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">a handout.</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="q-item" id="container-s0_q22">
+                                        <div class="font-semibold text-gray-800 text-base sm:text-lg mb-3">
+                                            <span class="text-blue-600 mr-1">22.</span> This assignment is important because
+                                        </div>
+                                        <div class="space-y-2 text-gray-700 pl-1 sm:pl-2">
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q22" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">it will become a permanent record.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q22" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">it is a must for passing 11th grade English.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q22" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">it will affect the English level next year.</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="q-item" id="container-s0_q23">
+                                        <div class="font-semibold text-gray-800 text-base sm:text-lg mb-3">
+                                            <span class="text-blue-600 mr-1">23.</span> Bobby chooses football as project topic because
+                                        </div>
+                                        <div class="space-y-2 text-gray-700 pl-1 sm:pl-2">
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q23" value="a" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">A</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">he often plays football.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q23" value="b" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">B</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">his father loves football.</span>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border-2 border-transparent transition-colors hover:bg-gray-50">
+                                                <input type="radio" name="s0_q23" value="c" class="mt-1 w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0">
+                                                <div class="flex items-start space-x-3">
+                                                    <span class="font-bold w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-sm text-gray-700 shrink-0">C</span>
+                                                    <span class="text-sm sm:text-[1.05rem]">he is interested in football.</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    rightQuestions: `
+                        <div class="h-full flex flex-col pt-4 sm:pt-16">
+                            
+                            <!-- Matching Questions 24 - 30 -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="bg-pink-100 text-pink-800 text-sm font-bold px-3 py-1 rounded-full">Questions 24-30</span>
+                                </div>
+                                <p class="mb-2 text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-100 text-sm sm:text-base">
+                                    What problems do the speakers identify for this project?<br>
+                                    Choose <strong>SEVEN</strong> answers from the box and write the letters <strong>A - H</strong> next to questions 24-30.
+                                </p>
+                                
+                                <div class="border-2 border-gray-200 rounded-xl p-4 bg-gray-50 mb-6 mt-4">
+                                    <h4 class="font-bold mb-3 text-gray-800 border-b border-gray-200 pb-2">Problems</h4>
+                                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+                                        <li class="flex"><strong class="mr-2 text-gray-900">A</strong> too vague</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">B</strong> too factual</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">C</strong> too unreliable</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">D</strong> too noisy</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">E</strong> too long</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">F</strong> too short</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">G</strong> too complicated</li>
+                                        <li class="flex"><strong class="mr-2 text-gray-900">H</strong> too simple</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="space-y-4 flex-1">
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q24">
+                                        <strong class="text-blue-600 mr-2 w-6">24</strong> 
+                                        <span class="w-48 text-gray-800">Background sounds</span>
+                                        <input type="text" name="s0_q24" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q25">
+                                        <strong class="text-blue-600 mr-2 w-6">25</strong> 
+                                        <span class="w-48 text-gray-800">Answer of questions</span>
+                                        <input type="text" name="s0_q25" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q26">
+                                        <strong class="text-blue-600 mr-2 w-6">26</strong> 
+                                        <span class="w-48 text-gray-800">One of the questions</span>
+                                        <input type="text" name="s0_q26" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q27">
+                                        <strong class="text-blue-600 mr-2 w-6">27</strong> 
+                                        <span class="w-48 text-gray-800">Time of answering</span>
+                                        <input type="text" name="s0_q27" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q28">
+                                        <strong class="text-blue-600 mr-2 w-6">28</strong> 
+                                        <span class="w-48 text-gray-800">Recording equipment</span>
+                                        <input type="text" name="s0_q28" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q29">
+                                        <strong class="text-blue-600 mr-2 w-6">29</strong> 
+                                        <span class="w-48 text-gray-800">Topic of project</span>
+                                        <input type="text" name="s0_q29" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                    <div class="q-item flex items-center text-sm sm:text-base" id="container-s0_q30">
+                                        <strong class="text-blue-600 mr-2 w-6">30</strong> 
+                                        <span class="w-48 text-gray-800">Report on project</span>
+                                        <input type="text" name="s0_q30" class="fill-in-blank single-letter" maxlength="1" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        }
+    };
+
+    const answers = {
+        s0_q21: "c", 
+        s0_q22: "a", 
+        s0_q23: "b", 
+        s0_q24: "d", 
+        s0_q25: "f", 
+        s0_q26: "g", 
+        s0_q27: "e", 
+        s0_q28: "c", 
+        s0_q29: "a", 
+        s0_q30: "b"
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            userAnswers: {},
+            currentSection: 0,
+            answersChecked: {},
+            currentFontSize: 16,
+
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            sectionTabsContainer: document.getElementById('section-tabs'),
+            passageIndicator: document.getElementById('passage-indicator'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptModalContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptModalBtn: document.getElementById('close-transcript-modal'),
+            transcriptBtn: document.getElementById('transcript-btn'),
+
+            alertModal: document.getElementById('alert-modal'),
+            alertModalContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitleEl: document.getElementById('alert-title'),
+            alertMessageEl: document.getElementById('alert-message'),
+
+            init() {
+                this.setupEventListeners();
+                this.loadContent();
+                this.initSplitter();
+                this.initHighlighter();
+                this.initAudioPlayer();
+            },
+
+            initAudioPlayer() {
+                const audioEl = document.getElementById('custom-audio-element');
+                const playBtn = document.getElementById('custom-play-btn');
+                const playIcon = document.getElementById('play-icon');
+                const pauseIcon = document.getElementById('pause-icon');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const currentTimeEl = document.getElementById('current-time');
+                const totalTimeEl = document.getElementById('total-time');
+
+                if (!audioEl) return;
+
+                const formatTime = (seconds) => {
+                    if (isNaN(seconds)) return "0:00";
+                    const m = Math.floor(seconds / 60);
+                    const s = Math.floor(seconds % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                audioEl.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audioEl.duration);
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audioEl.paused) {
+                        audioEl.play();
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    } else {
+                        audioEl.pause();
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                audioEl.addEventListener('timeupdate', () => {
+                    currentTimeEl.textContent = formatTime(audioEl.currentTime);
+                    const progress = (audioEl.currentTime / audioEl.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioEl.currentTime = pos * audioEl.duration;
+                });
+
+                audioEl.addEventListener('ended', () => {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '0:00';
+                });
+            },
+
+            setupEventListeners() {
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.changeFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.changeFontSize(-1));
+
+                this.transcriptBtn.addEventListener('click', () => {
+                    const exercises = this.getReadingExerciseTypes();
+                    let allChecked = true;
+                    exercises.forEach(ex => {
+                        const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                        if (!this.answersChecked[exerciseKey]) {
+                            allChecked = false;
+                        }
+                    });
+
+                    if (!allChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers before viewing the audio transcript.");
+                    } else {
+                        this.openTranscriptModal();
+                    }
+                });
+                this.closeTranscriptModalBtn.addEventListener('click', () => this.closeTranscriptModal());
+                this.transcriptModal.addEventListener('click', (e) => {
+                   if (e.target === this.transcriptModal) this.closeTranscriptModal();
+                });
+
+                this.closeAlertBtn.addEventListener('click', () => this.closeAlert());
+                this.alertModal.addEventListener('click', (e) => {
+                   if (e.target === this.alertModal) this.closeAlert();
+                });
+
+                document.body.addEventListener('input', (e) => this.handleInput(e));
+                document.body.addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox' || e.target.type === 'radio') this.handleInput(e);
+                });
+                
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('check-exercise-btn')) {
+                        this.checkExerciseAnswers(e.target.dataset.exercise, e.target.dataset.keys);
+                    }
+                });
+            },
+            
+            changeFontSize(delta) {
+                this.currentFontSize += delta;
+                if (this.currentFontSize < 12) this.currentFontSize = 12;
+                if (this.currentFontSize > 24) this.currentFontSize = 24;
+                
+                document.documentElement.style.fontSize = `${this.currentFontSize}px`;
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openTranscriptModal() {
+                this.transcriptModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.transcriptModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.transcriptModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeTranscriptModal() {
+                this.transcriptModalContent.classList.remove('scale-100', 'opacity-100');
+                this.transcriptModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.transcriptModal.classList.add('hidden');
+                }, 200);
+            },
+            
+            showAlert(title, message) {
+                if (title) this.alertTitleEl.textContent = title;
+                if (message) this.alertMessageEl.textContent = message;
+                
+                this.alertModal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.alertModalContent.classList.remove('scale-95', 'opacity-0');
+                    this.alertModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeAlert() {
+                this.alertModalContent.classList.remove('scale-100', 'opacity-100');
+                this.alertModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.alertModal.classList.add('hidden');
+                }, 200);
+            },
+
+            handleInput(e) {
+                const name = e.target.name;
+                
+                if (e.target.type === 'checkbox') {
+                    const checkedBoxes = Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+                    const maxAllowed = Array.isArray(answers[name]) ? answers[name].length : 1;
+                    
+                    if (checkedBoxes.length > maxAllowed) {
+                        e.target.checked = false; 
+                        return;
+                    }
+                    
+                    this.userAnswers[name] = checkedBoxes;
+                    
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
+                        cb.parentElement.classList.remove('bg-green-50', 'border-green-400', 'bg-red-50', 'border-red-400', 'border-green-400', 'border-dashed');
+                        cb.parentElement.classList.add('border-transparent');
+                    });
+                    this.updateCheckButtonsState();
+                    
+                } else if (e.target.type === 'radio') {
+                    this.userAnswers[name] = e.target.value;
+                    
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                        r.parentElement.classList.remove('bg-green-50', 'border-green-400', 'bg-red-50', 'border-red-400', 'border-green-400', 'border-dashed', 'bg-blue-50', 'border-blue-400');
+                        r.parentElement.classList.add('border-transparent');
+                    });
+                    
+                    e.target.parentElement.classList.add('bg-blue-50', 'border-blue-400');
+                    this.updateCheckButtonsState();
+
+                } else if (e.target.type === 'text') {
+                    this.userAnswers[name] = e.target.value;
+                    e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    this.updateCheckButtonsState();
+                }
+            },
+
+            restoreAnswers() {
+                for (const qId in this.userAnswers) {
+                    const value = this.userAnswers[qId];
+                    if (Array.isArray(value)) {
+                        value.forEach(val => {
+                            const cb = document.querySelector(`input[name="${qId}"][value="${val}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                    } else {
+                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                        if (inputs.length > 0) {
+                            if (inputs[0].type === 'radio') {
+                                const radio = document.querySelector(`input[name="${qId}"][value="${value}"]`);
+                                if (radio) {
+                                    radio.checked = true;
+                                    radio.parentElement.classList.add('bg-blue-50', 'border-blue-400');
+                                }
+                            } else if (inputs[0].type === 'text') {
+                                inputs[0].value = value;
+                            }
+                        }
+                    }
+                }
+            },
+
+            checkExerciseAnswers(exerciseKey, keysStr) {
+                if (this.answersChecked[exerciseKey]) {
+                    this.answersChecked[exerciseKey] = false;
+                    this.loadContent();
+                    this.updateTranscriptState();
+                    return;
+                }
+
+                const keys = keysStr.split(',');
+                let allAnswered = true;
+                for (const qId of keys) {
+                    if (Array.isArray(answers[qId])) {
+                        const userVals = this.userAnswers[qId] || [];
+                        if (userVals.length !== answers[qId].length) {
+                            allAnswered = false;
+                            break;
+                        }
+                    } else {
+                        const answer = (this.userAnswers[qId] || "").trim();
+                        if (answer === "") {
+                            allAnswered = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!allAnswered) {
+                    this.showAlert("Incomplete Answers", "Please fill in all the blanks and select required choices before checking your answers.");
+                    return;
+                }
+
+                this.answersChecked[exerciseKey] = true;
+                this.showExerciseAnswers(keysStr);
+                this.updateTranscriptState();
+            },
+
+            updateTranscriptState() {
+                const exercises = this.getReadingExerciseTypes();
+                let allChecked = true;
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if (!this.answersChecked[exerciseKey]) {
+                        allChecked = false;
+                    }
+                });
+                
+                if (allChecked) {
+                    this.transcriptBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.removeAttribute('title');
+                } else {
+                    this.transcriptBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    this.transcriptBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'focus:ring-2', 'focus:ring-indigo-400');
+                    this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+                }
+            },
+
+            loadContent() {
+                const data = testData.reading;
+                const sectionData = data.sections[this.currentSection];
+
+                this.leftPane.innerHTML = sectionData.leftQuestions;
+                this.rightPane.innerHTML = sectionData.rightQuestions;
+                this.sectionTabsContainer.innerHTML = `<button class="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors section-tab-btn" data-section="0">Section 3</button>`;
+                this.passageIndicator.textContent = `Section 3 of 4`;
+
+                this.restoreAnswers();
+                this.addReadingExerciseButtons();
+
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    if(this.answersChecked[exerciseKey]) {
+                        this.showExerciseAnswers(ex.keys.join(','));
+                    }
+                });
+                
+                this.updateCheckButtonsState();
+                this.updateTranscriptState();
+            },
+            
+            getReadingExerciseTypes() {
+                return [ 
+                    { type: 'all_questions', keys: ['s0_q21', 's0_q22', 's0_q23', 's0_q24', 's0_q25', 's0_q26', 's0_q27', 's0_q28', 's0_q29', 's0_q30'], title: 'Questions 21-30' }
+                ];
+            },
+
+            addReadingExerciseButtons() {
+                const exercises = this.getReadingExerciseTypes();
+
+                exercises.forEach(exercise => {
+                    const exerciseKey = `section_${this.currentSection}_${exercise.type}`;
+                    const keysStr = exercise.keys.join(',');
+
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'mt-6 pt-4 border-t border-gray-100 flex justify-end';
+                    buttonContainer.innerHTML = `
+                        <button class="check-exercise-btn font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center" data-exercise="${exerciseKey}" data-keys="${keysStr}">
+                            Check Answers
+                        </button>
+                    `;
+
+                    const rightInnerBox = this.rightPane.querySelector('.bg-white.p-6.rounded-2xl');
+                    if (rightInnerBox) {
+                        rightInnerBox.appendChild(buttonContainer);
+                    }
+                });
+            },
+            
+            showExerciseAnswers(keysStr) {
+                const normalizeStr = str => str.replace(/[.,\s-]/g, '').toLowerCase().trim();
+                const keys = keysStr.split(',');
+
+                for (const qId of keys) {
+                    let questionContainer = document.getElementById(`container-${qId}`);
+                    
+                    if (Array.isArray(answers[qId])) {
+                        // Checkboxes
+                        const userVals = this.userAnswers[qId] || [];
+                        const correctVals = answers[qId];
+                        
+                        document.querySelectorAll(`input[name="${qId}"]`).forEach(cb => {
+                            const isSelected = userVals.includes(cb.value);
+                            const isCorrect = correctVals.includes(cb.value);
+                            
+                            cb.parentElement.classList.remove('border-transparent');
+                            
+                            if (isSelected) {
+                                if (isCorrect) {
+                                    cb.parentElement.classList.add('bg-green-50', 'border-green-400');
+                                } else {
+                                    cb.parentElement.classList.add('bg-red-50', 'border-red-400');
+                                }
+                            } else if (isCorrect) {
+                                cb.parentElement.classList.add('border-green-400', 'border-dashed');
+                            }
+                        });
+                        
+                        if (explanations[qId] && questionContainer) {
+                            const existingExpl = document.getElementById(`expl-${qId}`);
+                            if (!existingExpl) {
+                                const explDiv = document.createElement('div');
+                                explDiv.id = `expl-${qId}`;
+                                explDiv.className = 'explanation-box mt-3 mb-4';
+                                const formattedAnswer = correctVals.map(v => v.toUpperCase()).join(' & ');
+                                explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                questionContainer.insertAdjacentElement('afterend', explDiv);
+                            }
+                        }
+                    } else {
+                        // Fill in blanks & Radio
+                        const inputs = document.querySelectorAll(`input[name="${qId}"]`);
+                        if (inputs.length === 0) continue;
+
+                        if (inputs[0].type === 'radio') {
+                             const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                             const correctAnswer = answers[qId].toLowerCase();
+                             
+                             inputs.forEach(r => {
+                                const isSelected = r.value === userAnswer;
+                                const isCorrect = r.value === correctAnswer;
+                                
+                                r.parentElement.classList.remove('border-transparent', 'bg-blue-50', 'border-blue-400');
+                                
+                                if (isSelected) {
+                                    if (isCorrect) {
+                                        r.parentElement.classList.add('bg-green-50', 'border-green-400');
+                                    } else {
+                                        r.parentElement.classList.add('bg-red-50', 'border-red-400');
+                                    }
+                                } else if (isCorrect) {
+                                    r.parentElement.classList.add('border-green-400', 'border-dashed');
+                                }
+                             });
+                             
+                             if (explanations[qId] && questionContainer) {
+                                 const existingExpl = document.getElementById(`expl-${qId}`);
+                                 if (!existingExpl) {
+                                    const explDiv = document.createElement('div');
+                                    explDiv.id = `expl-${qId}`;
+                                    explDiv.className = 'explanation-box mt-3 mb-4';
+                                    explDiv.innerHTML = `<strong>Correct Answer: ${answers[qId].toUpperCase()}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                    questionContainer.insertAdjacentElement('afterend', explDiv);
+                                 }
+                            }
+                        } else if (inputs[0].type === 'text') {
+                            const userAnswer = (this.userAnswers[qId] || "").toLowerCase().trim();
+                            const correctAnswersList = (answers[qId] || "").toLowerCase().split('|');
+                            const isCorrect = correctAnswersList.some(ans => normalizeStr(ans) === normalizeStr(userAnswer));
+
+                            const input = inputs[0];
+                            input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                            if (isCorrect) {
+                                input.classList.add('correct-answer-text');
+                            } else {
+                                input.classList.add('incorrect-answer-text');
+                            }
+
+                            if (explanations[qId] && questionContainer) {
+                                 const existingExpl = document.getElementById(`expl-${qId}`);
+                                 if (!existingExpl) {
+                                    const explDiv = document.createElement('div');
+                                    explDiv.id = `expl-${qId}`;
+                                    explDiv.className = 'explanation-box mt-3 mb-4';
+                                    const formattedAnswer = correctAnswersList[0].toUpperCase();
+                                    explDiv.innerHTML = `<strong>Correct Answer: ${formattedAnswer}</strong><br><span class="text-sm mt-1 block">Explanation: ${explanations[qId]}</span>`;
+                                    questionContainer.insertAdjacentElement('afterend', explDiv);
+                                 }
+                            }
+                        }
+                    }
+                }
+
+                this.updateCheckButtonsState();
+            },
+
+            updateCheckButtonsState() {
+                const exercises = this.getReadingExerciseTypes();
+                exercises.forEach(ex => {
+                    const exerciseKey = `section_${this.currentSection}_${ex.type}`;
+                    const btn = document.querySelector(`button[data-exercise="${exerciseKey}"]`);
+                    if (!btn) return;
+
+                    if (this.answersChecked[exerciseKey]) {
+                        btn.className = 'check-exercise-btn bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center';
+                        btn.textContent = 'Reset Answers';
+                    } else {
+                        btn.textContent = 'Check Answers';
+                        
+                        let allAnswered = true;
+                        for (const qId of ex.keys) {
+                            if (Array.isArray(answers[qId])) {
+                                const userVals = this.userAnswers[qId] || [];
+                                if (userVals.length !== answers[qId].length) {
+                                    allAnswered = false;
+                                    break;
+                                }
+                            } else {
+                                const answer = (this.userAnswers[qId] || "").trim();
+                                if (answer === "") {
+                                    allAnswered = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (allAnswered) {
+                            btn.className = 'check-exercise-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-pointer';
+                        } else {
+                            btn.className = 'check-exercise-btn bg-gray-300 text-gray-500 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center cursor-not-allowed';
+                        }
+                    }
+                });
+            },
+
+            initSplitter() {
+                let isDragging = false;
+                const contentPanes = document.getElementById('content-panes');
+
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    if (window.innerWidth <= 768) return; 
+                    
+                    const containerRect = contentPanes.getBoundingClientRect();
+                    const newLeftWidth = e.clientX - containerRect.left;
+                    if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
+                        const newLeftPercent = (newLeftWidth / containerRect.width) * 100;
+                        contentPanes.style.gridTemplateColumns = `${newLeftPercent}% 5px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                document.body.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    if (selectedText.length > 0) {
+                        const range = selection.getRangeAt(0);
+                        if (!this.leftPane.contains(range.commonAncestorContainer) && !this.rightPane.contains(range.commonAncestorContainer)) {
+                           this.highlightTooltip.style.display = 'none';
+                           return;
+                        }
+
+                        this.highlightTooltip.style.left = `${e.pageX - 30}px`;
+                        this.highlightTooltip.style.top = `${e.pageY - 40}px`;
+                        this.highlightTooltip.style.display = 'block';
+
+                        this.highlightTooltip.onclick = () => {
+                            const container = range.commonAncestorContainer;
+                            if (container.nodeType === 3) { 
+                                if (range.startContainer.parentElement !== range.endContainer.parentElement) {
+                                    this.highlightTooltip.style.display = 'none';
+                                    return;
+                                }
+                            }
+                            
+                            const mark = document.createElement('mark');
+                            try {
+                                range.surroundContents(mark);
+                            } catch (ex) {
+                            } finally {
+                                selection.removeAllRanges();
+                                this.highlightTooltip.style.display = 'none';
+                            }
+                        };
+                    } else {
+                        this.highlightTooltip.style.display = 'none';
+                    }
+                });
+
+                document.body.addEventListener('mousedown', (e) => {
+                   if (e.target !== this.highlightTooltip && window.getSelection().toString().length === 0) {
+                        this.highlightTooltip.style.display = 'none';
+                   }
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
