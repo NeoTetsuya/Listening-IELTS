@@ -299,30 +299,58 @@
                     <button onclick="setCategory('part4')" id="btn-part4" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-amber-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 4 (6)</button>
                 </div>
 
-                <!-- Search Bar with Shortcut & Clear Button -->
-                <div class="relative group w-full md:w-96 flex-shrink-0">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300 pointer-events-none"></div>
-                    <div class="relative flex items-center glass-panel rounded-xl px-3 py-1.5 transition-all focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-transparent">
-                        <div class="text-slate-400 mr-2 flex-shrink-0">
-                            <i data-lucide="search" class="w-4 h-4"></i>
+                <!-- Search Bar & Auto-Sorter Controls -->
+                <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                    <div class="relative group w-full md:w-80 flex-shrink-0">
+                        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300 pointer-events-none"></div>
+                        <div class="relative flex items-center glass-panel rounded-xl px-3 py-1.5 transition-all focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-transparent">
+                            <div class="text-slate-400 mr-2 flex-shrink-0">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="searchBox" 
+                                aria-label="Search listening tests"
+                                placeholder="Search tests or question types..."
+                                onkeyup="handleSearch()"
+                                class="w-full bg-transparent border-none text-white placeholder-slate-500 py-1.5 pr-2 focus:outline-none focus:ring-0 text-sm"
+                            >
+                            <div class="flex items-center gap-1.5 flex-shrink-0">
+                                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden text-slate-400 hover:text-white p-1 transition-colors cursor-pointer" title="Clear search">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                                <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700 rounded select-none shadow-xs" title="Press / to search">/</kbd>
+                            </div>
                         </div>
-                        <input 
-                            type="text" 
-                            id="searchBox" 
-                            aria-label="Search listening tests"
-                            placeholder="Search tests or question types..."
-                            onkeyup="handleSearch()"
-                            class="w-full bg-transparent border-none text-white placeholder-slate-500 py-1.5 pr-2 focus:outline-none focus:ring-0 text-sm"
-                        >
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden text-slate-400 hover:text-white p-1 transition-colors" title="Clear search">
-                                <i data-lucide="x" class="w-4 h-4"></i>
+                    </div>
+
+                    <!-- Auto-Sorter Dropdown -->
+                    <div class="relative flex-shrink-0" id="sortDropdownWrapper">
+                        <button type="button" id="sortToggleBtn" onclick="toggleSortMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl glass-panel text-slate-300 hover:text-white border border-slate-700/80 hover:border-slate-600 text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer" title="Auto Sorter options">
+                            <i id="sortBtnIcon" data-lucide="arrow-down-az" class="w-4 h-4 text-indigo-400"></i>
+                            <span id="currentSortLabel" class="hidden sm:inline">A–Z</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+                        </button>
+                        <div id="sortMenu" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-slate-900/95 border border-slate-700/90 shadow-2xl backdrop-blur-xl py-1.5 z-50 text-xs select-none">
+                            <div class="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 border-b border-slate-800/80 flex items-center justify-between">
+                                <span>Auto Sorter</span>
+                                <span class="text-indigo-400 font-normal">Active</span>
+                            </div>
+                            <button type="button" onclick="setSortMode('az')" class="w-full text-left px-3 py-2 text-slate-200 hover:text-white hover:bg-slate-800/80 flex items-center justify-between transition-colors cursor-pointer">
+                                <span class="flex items-center gap-2"><i data-lucide="arrow-down-az" class="w-3.5 h-3.5 text-indigo-400"></i> Name (A → Z)</span>
+                                <i id="sortCheck-az" data-lucide="check" class="w-3.5 h-3.5 text-indigo-400"></i>
                             </button>
-                            <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700 rounded select-none shadow-xs" title="Press / to search">/</kbd>
+                            <button type="button" onclick="setSortMode('za')" class="w-full text-left px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center justify-between transition-colors cursor-pointer">
+                                <span class="flex items-center gap-2"><i data-lucide="arrow-up-za" class="w-3.5 h-3.5 text-slate-400"></i> Name (Z → A)</span>
+                                <i id="sortCheck-za" data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </button>
+                            <button type="button" onclick="setSortMode('type')" class="w-full text-left px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center justify-between transition-colors cursor-pointer">
+                                <span class="flex items-center gap-2"><i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i> Question Type</span>
+                                <i id="sortCheck-type" data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- Row 2: IELTS Exercise Type Filter Chips with Slider -->
@@ -409,6 +437,28 @@
                 
                 <!-- Part 1 Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 card-container">
+                    <a href="Part%201/Part%201%20-%20Advice%20on%20Family%20Visit.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Advice on Family Visit</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
                     <a href="Part%201/Part%201%20-%20Birmingham%20Exhibition.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -420,163 +470,6 @@
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Phone%20Interview.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Phone Interview</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Registration%20Form.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Registration Form</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Plan%20For%20Sharing%20Accommodation.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Plan For Sharing Accommodation</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Notes%20On%20Island%20Hotel.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Notes On Island Hotel</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Tourism%20Survey.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Tourism Survey</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20School%20Excursion%20Discussion.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">School Excursion Discussion</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20New%20Eating%20Plan.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">New Eating Plan</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -600,74 +493,6 @@
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
                             <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Tallyho%20Survey%20Company.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Tallyho Survey Company</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Summary Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-emerald-500/10 text-emerald-300 border-emerald-500/20 hover:border-emerald-400/40 tracking-tight cursor-pointer" title="Click to filter by Summary Completion">Summary Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Wayside%20Camera%20Club.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Wayside Camera Club</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%201/Part%201%20-%20Advice%20on%20Family%20Visit.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Advice on Family Visit</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -711,6 +536,52 @@
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20New%20Eating%20Plan.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">New Eating Plan</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Notes%20On%20Island%20Hotel.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Notes On Island Hotel</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
                             </div>
                         </div>
@@ -768,6 +639,50 @@
                             </span>
                         </div>
                     </a>
+                    <a href="Part%201/Part%201%20-%20Phone%20Interview.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Phone Interview</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Plan%20For%20Sharing%20Accommodation.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Plan For Sharing Accommodation</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
                     <a href="Part%201/Part%201%20-%20Practical%20Support%20for%20Carers.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -779,6 +694,28 @@
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Registration%20Form.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Registration Form</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -812,6 +749,29 @@
                             </span>
                         </div>
                     </a>
+                    <a href="Part%201/Part%201%20-%20School%20Excursion%20Discussion.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">School Excursion Discussion</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
                     <a href="Part%201/Part%201%20-%20Survey%20about%20Shopping%20in%20Broadbeach.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -823,6 +783,74 @@
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Tallyho%20Survey%20Company.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Tallyho Survey Company</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Summary Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-emerald-500/10 text-emerald-300 border-emerald-500/20 hover:border-emerald-400/40 tracking-tight cursor-pointer" title="Click to filter by Summary Completion">Summary Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Tourism%20Survey.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Tourism Survey</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20Wayside%20Camera%20Club.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Wayside Camera Club</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Form Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:border-cyan-400/40 tracking-tight cursor-pointer" title="Click to filter by Form Completion">Form Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -852,52 +880,6 @@
                 
                 <!-- Part 2 Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 card-container">
-                    <a href="Part%202/Part%202%20-%20Healthy%20Hearing%20Medical%20Clinic.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Healthy Hearing Medical Clinic</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            <button type="button" onclick="filterByBadge(event, 'Map Labelling')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-pink-500/10 text-pink-300 border-pink-500/20 hover:border-pink-400/40 tracking-tight cursor-pointer" title="Click to filter by Map Labelling">Map Labelling</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%202/Part%202%20-%20Online%20Exchange%20Business.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Online Exchange Business</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
                     <a href="Part%202/Part%202%20-%20Earn%20And%20Learn%20Company.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -967,6 +949,29 @@
                             </span>
                         </div>
                     </a>
+                    <a href="Part%202/Part%202%20-%20Healthy%20Hearing%20Medical%20Clinic.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Healthy Hearing Medical Clinic</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            <button type="button" onclick="filterByBadge(event, 'Map Labelling')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-pink-500/10 text-pink-300 border-pink-500/20 hover:border-pink-400/40 tracking-tight cursor-pointer" title="Click to filter by Map Labelling">Map Labelling</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
                     <a href="Part%202/Part%202%20-%20Improvement%20Plan.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -979,6 +984,29 @@
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Matching')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-purple-500/10 text-purple-300 border-purple-500/20 hover:border-purple-400/40 tracking-tight cursor-pointer" title="Click to filter by Matching">Matching</button>
                             <button type="button" onclick="filterByBadge(event, 'Map Labelling')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-pink-500/10 text-pink-300 border-pink-500/20 hover:border-pink-400/40 tracking-tight cursor-pointer" title="Click to filter by Map Labelling">Map Labelling</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%202/Part%202%20-%20Online%20Exchange%20Business.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-2-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Online Exchange Business</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -1008,6 +1036,29 @@
                 
                 <!-- Part 3 Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 card-container">
+                    <a href="Part%203/Part%203%20-%20Football%20Research.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-3-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Football Research</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            <button type="button" onclick="filterByBadge(event, 'Matching')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-purple-500/10 text-purple-300 border-purple-500/20 hover:border-purple-400/40 tracking-tight cursor-pointer" title="Click to filter by Matching">Matching</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
                     <a href="Part%203/Part%203%20-%20Professor%20Morgan%27s%20Lecture.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-3-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
@@ -1020,6 +1071,29 @@
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
                             <button type="button" onclick="filterByBadge(event, 'Matching')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-purple-500/10 text-purple-300 border-purple-500/20 hover:border-purple-400/40 tracking-tight cursor-pointer" title="Click to filter by Matching">Matching</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%203/Part%203%20-%20Project%20Assignments.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-3-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Project Assignments</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -1077,52 +1151,6 @@
                             </span>
                         </div>
                     </a>
-                    <a href="Part%203/Part%203%20-%20Football%20Research.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-3-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Football Research</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            <button type="button" onclick="filterByBadge(event, 'Matching')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-purple-500/10 text-purple-300 border-purple-500/20 hover:border-purple-400/40 tracking-tight cursor-pointer" title="Click to filter by Matching">Matching</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%203/Part%203%20-%20Project%20Assignments.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-3-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Project Assignments</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
                 </div>
             </section>
 
@@ -1141,18 +1169,17 @@
                 
                 <!-- Part 4 Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 card-container">
-                    <a href="Part%204/Part%204%20-%20Evolution%20of%20Football.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                    <a href="Part%204/Part%204%20-%20Advertising%20Effect.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
                         <div class="absolute top-0 left-0 w-1.5 h-full part-4-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
                             <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Evolution of Football</span>
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Advertising Effect</span>
                                 <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
                                     <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
-                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -1176,6 +1203,51 @@
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%204/Part%204%20-%20Evolution%20of%20Football.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-4-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Evolution of Football</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Sentence Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-orange-500/10 text-orange-300 border-orange-500/20 hover:border-orange-400/40 tracking-tight cursor-pointer" title="Click to filter by Sentence Completion">Sentence Completion</button>
+                            <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%204/Part%204%20-%20Giving%20A%20Speech.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-4-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Giving A Speech</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -1221,50 +1293,6 @@
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             <button type="button" onclick="filterByBadge(event, 'Table Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-teal-500/10 text-teal-300 border-teal-500/20 hover:border-teal-400/40 tracking-tight cursor-pointer" title="Click to filter by Table Completion">Table Completion</button>
                             <button type="button" onclick="filterByBadge(event, 'Multiple Choice')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-sky-500/10 text-sky-300 border-sky-500/20 hover:border-sky-400/40 tracking-tight cursor-pointer" title="Click to filter by Multiple Choice">Multiple Choice</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%204/Part%204%20-%20Giving%20A%20Speech.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-4-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Giving A Speech</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
-                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
-                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
-                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
-                            </span>
-                        </div>
-                    </a>
-                    <a href="Part%204/Part%204%20-%20Advertising%20Effect.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
-                        <div class="absolute top-0 left-0 w-1.5 h-full part-4-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="mb-4">
-                            <div class="flex justify-between items-start gap-3 mb-2.5">
-                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Advertising Effect</span>
-                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
@@ -1371,6 +1399,83 @@
                 randomCard.classList.remove('ring-2', 'ring-indigo-400', 'ring-offset-2', 'ring-offset-slate-900');
                 if (href) window.location.href = href;
             }, 750);
+        };
+
+        // Auto-Sorter State and Controller
+        window.currentSortMode = 'az';
+
+        window.toggleSortMenu = function(event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('sortMenu');
+            if (menu) menu.classList.toggle('hidden');
+        };
+
+        // Close sort menu on outside click
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('sortDropdownWrapper');
+            const menu = document.getElementById('sortMenu');
+            if (menu && wrapper && !wrapper.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        window.setSortMode = function(mode) {
+            window.currentSortMode = mode;
+            const menu = document.getElementById('sortMenu');
+            if (menu) menu.classList.add('hidden');
+
+            // Update checkmark indicators
+            ['az', 'za', 'type'].forEach(m => {
+                const check = document.getElementById(`sortCheck-${m}`);
+                if (check) check.classList.toggle('hidden', m !== mode);
+            });
+
+            // Update button label & icon
+            const labelEl = document.getElementById('currentSortLabel');
+            const iconEl = document.getElementById('sortBtnIcon');
+            if (mode === 'az') {
+                if (labelEl) labelEl.textContent = 'A–Z';
+                if (iconEl) iconEl.setAttribute('data-lucide', 'arrow-down-az');
+                window.showToast('Sorted: Name (A → Z)', 'arrow-down-az');
+            } else if (mode === 'za') {
+                if (labelEl) labelEl.textContent = 'Z–A';
+                if (iconEl) iconEl.setAttribute('data-lucide', 'arrow-up-za');
+                window.showToast('Sorted: Name (Z → A)', 'arrow-up-za');
+            } else if (mode === 'type') {
+                if (labelEl) labelEl.textContent = 'Type';
+                if (iconEl) iconEl.setAttribute('data-lucide', 'layers');
+                window.showToast('Sorted: Question Type', 'layers');
+            }
+
+            lucide.createIcons();
+            window.applySort();
+        };
+
+        window.applySort = function() {
+            const containers = document.querySelectorAll('.card-container');
+            containers.forEach(container => {
+                const cards = Array.from(container.querySelectorAll('.card-hover'));
+                if (cards.length <= 1) return;
+
+                cards.sort((a, b) => {
+                    const titleA = (a.querySelector('.line-clamp-2')?.textContent || '').trim();
+                    const titleB = (b.querySelector('.line-clamp-2')?.textContent || '').trim();
+
+                    if (window.currentSortMode === 'az') {
+                        return titleA.localeCompare(titleB, undefined, { numeric: true, sensitivity: 'base' });
+                    } else if (window.currentSortMode === 'za') {
+                        return titleB.localeCompare(titleA, undefined, { numeric: true, sensitivity: 'base' });
+                    } else if (window.currentSortMode === 'type') {
+                        const typeA = (a.querySelector('.badge-chip')?.textContent || '').trim();
+                        const typeB = (b.querySelector('.badge-chip')?.textContent || '').trim();
+                        const comp = typeA.localeCompare(typeB);
+                        return comp !== 0 ? comp : titleA.localeCompare(titleB);
+                    }
+                    return 0;
+                });
+
+                cards.forEach(card => container.appendChild(card));
+            });
         };
 
         // Category / Part selection
@@ -1782,6 +1887,7 @@
             lucide.createIcons();
             initTypeSlider();
             updateFilterCounts();
+            window.applySort();
             renderView();
         });
     </script>

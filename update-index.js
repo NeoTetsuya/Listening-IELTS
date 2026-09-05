@@ -157,6 +157,119 @@ function generateCardHtml(partNum, relPath, title, badges) {
                     </a>`;
 }
 
+// Helper: Detect IELTS Part number from filename or content
+function detectPartNumber(filename, content) {
+  // 1. Check filename
+  const fnMatch = filename.match(/part\s*([1-4])/i) || filename.match(/section\s*([1-4])/i);
+  if (fnMatch) return parseInt(fnMatch[1], 10);
+
+  // 2. Check explicit Part badge or attributes in content
+  const badgeMatch = content.match(/Part\s*<span[^>]*>([1-4])<\/span>/i) 
+    || content.match(/data-part=["']([1-4])["']/i)
+    || content.match(/Part\s*([1-4])\b/i)
+    || content.match(/Section\s*([1-4])\b/i);
+  if (badgeMatch) return parseInt(badgeMatch[1], 10);
+
+  // 3. Check IELTS Part context keywords
+  if (/Social\s+Dialogue/i.test(content) || /everyday\s+social\s+context\s+between\s+two/i.test(content)) return 1;
+  if (/Social\s+Monologue/i.test(content) || /local\s+facilities\s+or\s+community/i.test(content)) return 2;
+  if (/Educational\s+Dialogue/i.test(content) || /conversation\s+between\s+up\s+to\s+four\s+people/i.test(content)) return 3;
+  if (/Academic\s+Lecture/i.test(content) || /monologue\s+on\s+an\s+academic\s+subject/i.test(content)) return 4;
+
+  return null;
+}
+
+// Helper: Clean and format test title to Title Case
+function cleanTestTitle(filename, content) {
+  let title = path.basename(filename, '.html');
+  
+  // Try extracting from <title> if meaningful
+  const titleMatch = content.match(/<title>([^<]+)<\/title>/i);
+  if (titleMatch && !titleMatch[1].includes('Listening for IELTS')) {
+    const rawTitle = titleMatch[1].split(' - ')[0].trim();
+    if (rawTitle && rawTitle.length < 80 && !rawTitle.toLowerCase().includes('simulator')) {
+      title = rawTitle;
+    }
+  }
+
+  // Strip Part X - prefix if present
+  title = title.replace(/^Part\s*[1-4]\s*[-–—_:]\s*/i, '');
+  // Strip listening simulator suffix
+  title = title.replace(/[-_]listening[-_]simulator$/i, '');
+  title = title.replace(/[-_]simulator$/i, '');
+  title = title.replace(/[-_]test$/i, '');
+
+  // Convert snake_case or kebab-case to words
+  title = title.replace(/[_-]+/g, ' ').trim();
+
+  // Convert to Title Case
+  const minorWords = new Set(['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'in', 'of']);
+  const words = title.split(/\s+/);
+  const titleCased = words.map((w, idx) => {
+    const lower = w.toLowerCase();
+    if (idx > 0 && minorWords.has(lower)) return lower;
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  }).join(' ');
+
+  return titleCased;
+}
+
+// Auto-sort any unorganized files into Part 1–4 folders
+function autoSortFiles() {
+  const ignoredFiles = new Set(['index.html', 'mockfile.html', 'admin.html']);
+  
+  // A. Scan root directory for unorganized test files
+  const rootFiles = fs.readdirSync(REPO_DIR).filter(f => {
+    if (!f.endsWith('.html')) return false;
+    if (ignoredFiles.has(f.toLowerCase())) return false;
+    if (f.startsWith('index.html.backup')) return false;
+    return true;
+  });
+
+  for (const filename of rootFiles) {
+    const fullPath = path.join(REPO_DIR, filename);
+    const content = fs.readFileSync(fullPath, 'utf8');
+    const partNum = detectPartNumber(filename, content);
+
+    if (partNum) {
+      const cleanTitle = cleanTestTitle(filename, content);
+      const standardName = `Part ${partNum} - ${cleanTitle}.html`;
+      const targetDir = path.join(REPO_DIR, `Part ${partNum}`);
+      if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+      const targetPath = path.join(targetDir, standardName);
+
+      if (!isDryRun) {
+        fs.renameSync(fullPath, targetPath);
+      }
+      log(`${cyan('⚡ Auto-sorted file to folder:')} ${filename} -> Part ${partNum}/${standardName}`);
+    } else {
+      log(`${yellow('⚠️ Could not determine Part for root file:')} ${filename}`);
+    }
+  }
+
+  // B. Scan existing Part folders to ensure standardized names
+  for (let p = 1; p <= 4; p++) {
+    const partFolder = path.join(REPO_DIR, `Part ${p}`);
+    if (!fs.existsSync(partFolder)) continue;
+
+    const files = fs.readdirSync(partFolder).filter(f => f.endsWith('.html'));
+    for (const filename of files) {
+      if (!filename.startsWith(`Part ${p} - `)) {
+        const fullPath = path.join(partFolder, filename);
+        const content = fs.readFileSync(fullPath, 'utf8');
+        const cleanTitle = cleanTestTitle(filename, content);
+        const standardName = `Part ${p} - ${cleanTitle}.html`;
+        const targetPath = path.join(partFolder, standardName);
+
+        if (!isDryRun && fullPath !== targetPath) {
+          fs.renameSync(fullPath, targetPath);
+        }
+        log(`${cyan('⚡ Auto-normalized filename:')} Part ${p}/${filename} -> ${standardName}`);
+      }
+    }
+  }
+}
+
 // Main Runner
 async function main() {
   log(`\n${bold('🚀 IELTS Listening Simulator - Auto Indexer & Git Sync')}`);
@@ -167,21 +280,8 @@ async function main() {
     process.exit(1);
   }
 
-  // 1. Auto-organize any test simulator files accidentally placed in root
-  const rootFiles = fs.readdirSync(REPO_DIR).filter(f => /^Part\s+[1-4]\s*-\s*.+\.html$/i.test(f));
-  if (rootFiles.length > 0 && !isDryRun) {
-    for (const filename of rootFiles) {
-      const match = filename.match(/^Part\s+([1-4])\s*-\s*(.+)\.html$/i);
-      if (!match) continue;
-      const partNum = parseInt(match[1], 10);
-      const targetDir = path.join(REPO_DIR, `Part ${partNum}`);
-      if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-      const oldPath = path.join(REPO_DIR, filename);
-      const newPath = path.join(targetDir, filename);
-      fs.renameSync(oldPath, newPath);
-      log(`${cyan('Auto-organized to folder:')} ${filename} -> Part ${partNum}/${filename}`);
-    }
-  }
+  // 1. Auto-organize & sort test simulator files
+  autoSortFiles();
 
   // 2. Scan Part folders (Part 1, Part 2, Part 3, Part 4)
   const testsByPart = { 1: [], 2: [], 3: [], 4: [] };
@@ -229,13 +329,16 @@ async function main() {
     log(`\n${green('✨ Newly detected tests to add (' + newlyAdded.length + '):')}`);
     newlyAdded.forEach(t => log(`  + [Part ${t.partNum}] ${t.title} [${t.badges.join(', ')}]`));
   } else {
-    log(`\n${cyan('✓ All test files are registered. Updating card links and metrics...')}`);
+    log(`\n${cyan('✓ All test files are registered. Updating card links, sorting, and metrics...')}`);
   }
 
-  // 3. Update each Part grid in index.html
+  // 3. Update each Part grid in index.html with auto-sorted cards (A-Z)
   for (let part = 1; part <= 4; part++) {
     const partTests = testsByPart[part];
     
+    // Auto-sort tests alphabetically by title
+    partTests.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
+
     // Locate the section for this part
     const sectionRegex = new RegExp(`(<section class="module" data-category="part${part}">[\\s\\S]*?<div class="grid [^"]*card-container">)([\\s\\S]*?)(<\\/div>\\s*<\\/section>)`, 'i');
     const sectionMatch = indexContent.match(sectionRegex);
@@ -246,36 +349,12 @@ async function main() {
     }
 
     const gridHeader = sectionMatch[1];
-    const existingGridBody = sectionMatch[2];
     const gridFooter = sectionMatch[3];
 
-    // Parse existing cards inside this grid
-    const cardRegex = /<a href="([^"]+)" class="searchable[^"]*">[\s\S]*?<\/a>/g;
-    let cMatch;
-    const existingCardsInPart = new Map();
-    while ((cMatch = cardRegex.exec(existingGridBody)) !== null) {
-      const href = decodeURIComponent(cMatch[1]);
-      const baseName = path.basename(href);
-      existingCardsInPart.set(baseName, cMatch[0]);
-    }
-
-    // Build updated cards list for this part
-    const updatedCards = [];
-    
-    // First keep existing cards in their order, updating paths and badges
-    for (const [baseName] of existingCardsInPart.entries()) {
-      const test = partTests.find(t => t.filename === baseName);
-      if (test) {
-        updatedCards.push(generateCardHtml(part, test.relPath, test.title, test.badges));
-      }
-    }
-
-    // Add any new tests that were not in existingCardsInPart
-    for (const test of partTests) {
-      if (!existingCardsInPart.has(test.filename)) {
-        updatedCards.push(generateCardHtml(part, test.relPath, test.title, test.badges));
-      }
-    }
+    // Build auto-sorted cards list for this part
+    const updatedCards = partTests.map(test => 
+      generateCardHtml(part, test.relPath, test.title, test.badges)
+    );
 
     const newGridBody = '\n' + updatedCards.join('\n') + '\n                ';
     indexContent = indexContent.replace(sectionRegex, `${gridHeader}${newGridBody}${gridFooter}`);
