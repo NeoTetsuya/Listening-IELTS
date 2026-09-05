@@ -6,6 +6,8 @@ index.html.backup*
 index.html.new
 index.html.enhanced
 index.html.rebuilt
+_backups/
+
 
 # OS & Editor files
 .DS_Store

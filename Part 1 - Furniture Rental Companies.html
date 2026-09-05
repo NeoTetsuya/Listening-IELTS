@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furniture Rental Companies | IELTS Listening Practice Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --app-font-size: 16px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+            background-color: #f1f5f9;
+        }
+        .ielts-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content-panes {
+            display: grid;
+            grid-template-columns: 1fr 6px 1fr;
+            overflow: hidden;
+        }
+        .pane {
+            overflow-y: auto;
+            padding: 1.75rem 2rem;
+            font-size: var(--app-font-size);
+            scroll-behavior: smooth;
+        }
+        #left-pane {
+            background-color: #ffffff;
+        }
+        #right-pane {
+            background-color: #f8fafc;
+        }
+        
+        /* Draggable splitter bar */
+        .splitter {
+            background-color: #cbd5e1;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        .splitter:hover, .splitter:active {
+            background-color: #0284c7;
+        }
+
+        /* Input styling for fill-in-the-blanks */
+        .fill-in-blank {
+            border: none;
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f1f5f9;
+            padding: 3px 8px;
+            font-weight: 600;
+            color: #0f172a;
+            min-width: 120px;
+            width: auto;
+            max-width: 170px;
+            transition: all 0.2s;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            margin: 0 4px;
+            display: inline-block;
+        }
+        .fill-in-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #0284c7;
+            background-color: #e0f2fe;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+        }
+        
+        /* Answer evaluation visual states */
+        .correct-answer-text {
+            border-bottom: 2px solid #16a34a !important;
+            color: #15803d !important;
+            background-color: #dcfce7 !important;
+        }
+        .incorrect-answer-text {
+            border-bottom: 2px solid #dc2626 !important;
+            color: #b91c1c !important;
+            background-color: #fee2e2 !important;
+            text-decoration: line-through;
+        }
+
+        /* Detailed explanation cards */
+        .explanation-box {
+            animation: slideInDown 0.3s ease-out forwards;
+            margin-top: 0.65rem;
+            padding: 0.75rem 1rem;
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            color: #14532d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+            text-align: left;
+        }
+        .explanation-box.incorrect {
+            background-color: #fef2f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Table styling */
+        .rental-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+        }
+        .rental-table th {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            padding: 0.75rem 0.9rem;
+            text-align: left;
+            border-bottom: 2px solid #cbd5e1;
+            font-size: 0.825em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .rental-table td {
+            padding: 1rem 0.9rem;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+            font-size: 0.925em;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .rental-table tr:last-child td {
+            border-bottom: none;
+        }
+        .rental-table tr:nth-child(even) {
+            background-color: #fafbfd;
+        }
+
+        /* Top-layer modal overlay rule to prevent bleed-through */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999 !important;
+        }
+
+        /* Floating interactive highlighter tooltip */
+        .highlight-tooltip {
+            position: fixed;
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 9999;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+            user-select: none;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            white-space: nowrap;
+        }
+        .highlight-tooltip:hover {
+            background-color: #0284c7;
+            transform: translateY(-1px);
+        }
+        mark {
+            background-color: #fef08a;
+            border-radius: 3px;
+            padding: 1px 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        mark:hover {
+            background-color: #fde047;
+        }
+        mark.answer-highlight {
+            background-color: #bbf7d0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #14532d;
+            border: 1px solid #86efac;
+            cursor: default;
+        }
+
+        @media (max-width: 960px) {
+            .content-panes {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .splitter {
+                display: none;
+            }
+            .pane {
+                padding: 1.25rem;
+                overflow-y: visible;
+                height: auto;
+            }
+            #left-pane {
+                border-bottom: 2px dashed #cbd5e1;
+            }
+            .fill-in-blank {
+                min-width: 110px;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased select-text">
+
+<div id="test-container" class="ielts-container">
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3 flex justify-between items-center z-20 shadow-xs">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-tr from-sky-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-sm">
+                <!-- Furniture / Home Sofa Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"></path>
+                    <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z"></path>
+                    <path d="M4 18v2"></path>
+                    <path d="M20 18v2"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                    IELTS Listening Practice
+                    <span class="text-xs bg-sky-100 text-sky-900 font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">Furniture Rentals</span>
+                </h1>
+                <p class="text-xs text-slate-500 font-medium hidden sm:block">Cambridge 20 • Test 3 • Part 1 (Questions 1–10)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-4">
+            <!-- Font adjustment -->
+            <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button id="decrease-font-btn" class="w-8 h-8 flex items-center justify-center rounded-md bg-white shadow-xs hover:bg-slate-50 text-slate-700 transition font-bold text-xs sm:text-sm" title="Decrease Font Size">A-</button>
+                <button id="increase-font-btn" class="w-8 h-8 flex items-center justify-center rounded-md bg-white shadow-xs hover:bg-slate-50 text-slate-700 transition font-bold text-xs sm:text-sm" title="Increase Font Size">A+</button>
+            </div>
+
+            <!-- Score Pill -->
+            <div id="score-badge" class="hidden text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-300 items-center gap-1.5 animate-pulse">
+                Score: <span id="score-text">0/10</span>
+            </div>
+
+            <div class="text-xs sm:text-sm font-bold text-sky-800 bg-sky-50 px-3 py-1.5 rounded-lg border border-sky-200">
+                Part 1
+            </div>
+        </div>
+    </header>
+
+    <main id="content-panes" class="content-panes">
+        
+        <!-- Left Pane: Peak Rentals & Aaron and Oliver (Questions 1 to 5) -->
+        <div id="left-pane" class="pane">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-200 pb-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider bg-sky-100 text-sky-900 px-3 py-1 rounded-full">Part 1 • Questions 1–5</span>
+                        <span class="text-xs text-slate-500 font-medium">Table Completion</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Furniture Rental Companies</h2>
+                    <p class="mt-2 text-sm sm:text-base text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        Complete the table below. Write <strong class="text-slate-900 font-semibold underline decoration-sky-600">ONE WORD AND/OR A NUMBER</strong> for each answer.
+                    </p>
+                </div>
+
+                <!-- Table for Questions 1-5 -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs bg-white">
+                    <table class="rental-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Name of company</th>
+                                <th style="width: 35%;">Information about costs</th>
+                                <th style="width: 40%;">Additional notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1: Peak Rentals (Q1, Q2, Q3) -->
+                            <tr>
+                                <td class="font-bold text-slate-900 bg-slate-50/70">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0"></span>
+                                        <span>Peak Rentals</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="q-item" id="container-q1">
+                                        Prices range from $105 to $
+                                        <span class="inline-flex items-center">
+                                            <strong class="text-sky-600 mx-1 font-bold">1</strong>
+                                            <input type="text" name="q1" class="fill-in-blank" style="max-width: 95px;" autocomplete="off" placeholder="number" aria-label="Question 1">
+                                        </span> 
+                                        per room per month.
+                                    </div>
+                                </td>
+                                <td>
+                                    <ul class="space-y-2.5 text-xs sm:text-sm">
+                                        <!-- Q2 -->
+                                        <li class="q-item" id="container-q2">
+                                            • The furniture is very 
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mx-1 font-bold">2</strong>
+                                                <input type="text" name="q2" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 2">
+                                            </span>
+                                        </li>
+                                        <li class="text-slate-600">• Delivers in 1–2 days</li>
+                                        <!-- Q3 -->
+                                        <li class="q-item border-t border-slate-100 pt-2" id="container-q3">
+                                            • Special offer: free 
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mx-1 font-bold">3</strong>
+                                                <input type="text" name="q3" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 3">
+                                            </span> 
+                                            with every living room set
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2: Aaron and Oliver (Q4, Q5) -->
+                            <tr>
+                                <!-- Q4 -->
+                                <td class="font-bold text-slate-900 bg-slate-50/70">
+                                    <div class="q-item" id="container-q4">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0"></span>
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mr-1 font-bold">4</strong>
+                                                <input type="text" name="q4" class="fill-in-blank" style="max-width: 110px;" autocomplete="off" placeholder="name" aria-label="Question 4">
+                                            </span>
+                                            <span>and Oliver</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <ul class="space-y-2 text-xs sm:text-sm">
+                                        <li class="text-slate-600">• Mid-range prices</li>
+                                        <!-- Q5 -->
+                                        <li class="q-item border-t border-slate-100 pt-1.5" id="container-q5">
+                                            • 12% monthly fee for 
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mx-1 font-bold">5</strong>
+                                                <input type="text" name="q5" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 5">
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <span class="text-slate-700 text-xs sm:text-sm">• Also offers a cleaning service</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Exam tip box -->
+                <div class="p-4 bg-sky-50/70 border border-sky-200 rounded-xl flex items-start gap-3">
+                    <svg class="w-5 h-5 text-sky-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="text-xs sm:text-sm text-sky-950 leading-relaxed">
+                        <strong class="font-semibold">Helpful Tip:</strong> Currency signs ($) and percentages (%) are already supplied on the page. Write only the missing numerical figure or proper noun (e.g. <em>Aaron</em>, spelling out double 'A').
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draggable Splitter -->
+        <div id="splitter" class="splitter relative flex items-center justify-center">
+            <div class="w-1 h-8 bg-slate-400 rounded-full opacity-60"></div>
+        </div>
+
+        <!-- Right Pane: Larch Furniture & Space Rentals (Questions 6 to 10) -->
+        <div id="right-pane" class="pane">
+            <div class="max-w-4xl mx-auto flex flex-col h-full justify-between space-y-6">
+                <div class="space-y-6">
+                    <div class="border-b border-slate-200 pb-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-900 px-3 py-1 rounded-full">Part 1 • Questions 6–10</span>
+                            <span class="text-xs text-slate-500 font-medium">Table Completion (Cont.)</span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Budget & Flexible Rentals</h3>
+                        <p class="mt-2 text-sm text-slate-600 bg-slate-100/70 p-3 rounded-lg border border-slate-200">
+                            Continue completing the table below with <strong class="text-slate-900 font-semibold underline decoration-sky-600">ONE WORD AND/OR A NUMBER</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Table for Questions 6-10: Larch Furniture & Space Rentals -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs bg-white">
+                        <table class="rental-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Name of company</th>
+                                    <th style="width: 35%;">Information about costs</th>
+                                    <th style="width: 40%;">Additional notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 3: Larch Furniture (Q6, Q7) -->
+                                <tr>
+                                    <td class="font-bold text-slate-900 bg-slate-50/70">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                            <span>Larch Furniture</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="q-item" id="container-q6">
+                                            Offers cheapest prices for renting furniture and 
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mx-1 font-bold">6</strong>
+                                                <input type="text" name="q6" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 6">
+                                            </span> 
+                                            items
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="space-y-2 text-xs sm:text-sm">
+                                            <!-- Q7 -->
+                                            <div class="q-item" id="container-q7">
+                                                • Must have own 
+                                                <span class="inline-flex items-center">
+                                                    <strong class="text-sky-600 mx-1 font-bold">7</strong>
+                                                    <input type="text" name="q7" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 7">
+                                                </span>
+                                            </div>
+                                            <div class="text-slate-600 border-t border-slate-100 pt-1.5">• Minimum contract length: six months</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 4: Space Rentals (Q8, Q9, Q10) -->
+                                <tr>
+                                    <!-- Q8 -->
+                                    <td class="font-bold text-slate-900 bg-slate-50/70">
+                                        <div class="q-item" id="container-q8">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                                <span class="inline-flex items-center">
+                                                    <strong class="text-sky-600 mr-1 font-bold">8</strong>
+                                                    <input type="text" name="q8" class="fill-in-blank" style="max-width: 100px;" autocomplete="off" placeholder="word" aria-label="Question 8">
+                                                </span>
+                                                <span>Rentals</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- Q9 -->
+                                    <td>
+                                        <div class="q-item" id="container-q9">
+                                            See the 
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mx-1 font-bold">9</strong>
+                                                <input type="text" name="q9" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 9">
+                                            </span> 
+                                            for the most up-to-date prices
+                                        </div>
+                                    </td>
+                                    <!-- Q10 -->
+                                    <td>
+                                        <div class="q-item" id="container-q10">
+                                            <span class="inline-flex items-center">
+                                                <strong class="text-sky-600 mr-1 font-bold">10</strong>
+                                                <input type="text" name="q10" class="fill-in-blank" autocomplete="off" placeholder="word" aria-label="Question 10">
+                                            </span> 
+                                            are allowed within 7 days of delivery
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bottom Action Controls -->
+                <div class="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+                    <button id="clear-all-btn" class="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                        Clear Inputs
+                    </button>
+                    <button id="check-answers-btn" class="px-6 py-2.5 text-sm sm:text-base font-bold bg-sky-600 hover:bg-sky-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Check Answers
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 px-3 sm:px-6 py-3 z-20 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6">
+            
+            <!-- Left Info: Audio Track Status -->
+            <div class="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-500 shrink-0">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>cam20-test3-part1.MP3</span>
+            </div>
+
+            <!-- Central Audio Player Bar -->
+            <div class="w-full max-w-2xl flex items-center gap-2 sm:gap-4 bg-slate-50 border border-slate-200 rounded-full px-3 sm:px-5 py-1.5">
+                <!-- Backward 5s -->
+                <button id="rewind-btn" class="text-slate-500 hover:text-slate-800 p-1 rounded-full transition" title="Rewind 5 seconds">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
+                    </svg>
+                </button>
+
+                <!-- Play/Pause -->
+                <button id="custom-play-btn" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition transform hover:scale-105" title="Play/Pause">
+                    <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                    <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                </button>
+
+                <!-- Forward 5s -->
+                <button id="forward-btn" class="text-slate-500 hover:text-slate-800 p-1 rounded-full transition" title="Forward 5 seconds">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                    </svg>
+                </button>
+
+                <!-- Scrubber -->
+                <div class="relative flex-1 flex items-center h-6 cursor-pointer group" id="progress-container">
+                    <div class="w-full h-1.5 bg-slate-200 rounded-full group-hover:h-2 transition-all duration-150 relative overflow-hidden">
+                        <div id="progress-bar" class="absolute top-0 left-0 h-full bg-sky-600 w-0 pointer-events-none rounded-full transition-all duration-75"></div>
+                    </div>
+                </div>
+
+                <!-- Timers -->
+                <div class="flex items-center text-[11px] sm:text-xs font-semibold text-slate-500 shrink-0 tabular-nums">
+                    <span id="current-time" class="text-sky-800">0:00</span>
+                    <span class="mx-1 text-slate-300">/</span>
+                    <span id="total-time">0:00</span>
+                </div>
+
+                <!-- Speed Control -->
+                <button id="speed-btn" class="text-[11px] font-bold bg-white text-slate-700 border border-slate-200 px-2 py-0.5 rounded hover:bg-slate-100 transition shrink-0" title="Audio Speed">
+                    1.0x
+                </button>
+
+                <!-- Audio Element -->
+                <audio id="custom-audio-element" src="https://ieltstrainingonline.com/wp-content/uploads/2025/07/cam20-test3-part1.MP3" preload="metadata"></audio>
+            </div>
+
+            <!-- Right Controls: Script & Vocabulary -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="vocab-btn" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-lg text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span>Glossary</span>
+                </button>
+
+                <button id="transcript-btn" class="px-3 sm:px-4 py-1.5 bg-slate-200 text-slate-500 cursor-not-allowed rounded-lg text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5" title="Check answers to unlock transcript">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Transcript</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Floating Highlight Tooltip -->
+<div id="highlight-tooltip" class="highlight-tooltip flex items-center gap-1.5">
+    <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    </svg>
+    <span>Highlight Selection</span>
+</div>
+
+<!-- Glossary Modal -->
+<div id="glossary-modal" class="modal-overlay bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden transition-opacity" style="z-index: 99999;">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg max-h-[85vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="glossary-modal-content">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                Furniture Rental Glossary
+            </h3>
+            <button id="close-glossary-modal" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition">&times;</button>
+        </div>
+        <div class="overflow-y-auto space-y-4 pr-1 text-sm flex-1" id="glossary-list">
+            <!-- Dynamically populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Transcript Modal -->
+<div id="transcript-modal" class="modal-overlay bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden transition-opacity" style="z-index: 99999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[92vh] sm:h-[85vh] flex flex-col relative transform transition-all scale-95 opacity-0" id="transcript-modal-content">
+        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 bg-slate-50 rounded-t-2xl shrink-0">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    Audio Script & Answer Verification
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Furniture Rental Companies • Full Recording Script</p>
+            </div>
+            <button id="close-transcript-modal" class="text-slate-400 hover:text-slate-700 bg-slate-200 hover:bg-slate-300 rounded-full w-8 h-8 flex items-center justify-center transition">&times;</button>
+        </div>
+        <div class="p-4 sm:p-7 overflow-y-auto flex-1 text-slate-700 leading-relaxed text-sm sm:text-base space-y-4 font-normal" id="transcript-content">
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Good morning.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Hi, this is Michelin Meyer. I'm renting your house on Archwood Avenue. I'm due to move in next week.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Oh, yes. Hello, Ms. Meyer. What can I do for you?</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> When I viewed the house, I told you I'll most probably need to rent some furniture, at least until I know whether my temporary work contract is going to be made permanent.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Yes, of course. I remember. And I said I could give you some information about furniture rental companies in the city.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> That's right.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Well, the biggest company is called Peak Rentals. I've recommended them to other people and have always heard positive reports about them.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Could you give me an idea of their costs?</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Sure. I actually have one of their brochures here. It says the monthly price per room starts at $105 and goes up to <mark class="answer-highlight">239</mark>. <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q1]</span> That depends on which rooms you need furniture for, of course.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Sure. It's just to get a general idea of how much it's going to cost. And you said you had some positive feedback about this company?</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Yes. People have mentioned that the furniture from Peak Rentals is more <mark class="answer-highlight">modern</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q2]</span> than any of the other companies. And also, once you place an order, the furniture will be delivered to you in just one or two days.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> That would be really helpful.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Oh, and the brochure says that there's a special offer at the moment. If you rent living room furniture, I believe that's a set of chairs and a TV table, you'll also get a <mark class="answer-highlight">lamp</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q3]</span> at no extra cost.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Okay, but you know, that price range you gave is more than I was hoping to pay.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Then you could try <mark class="answer-highlight">Aaron</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q4]</span> and Oliver.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Sorry, what and Oliver?</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Aaron, double A-R-O-N.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> OK, are they cheaper?</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> I'd say they are a mid-range company. But if you chose them you need to be aware that they charge an extra 12% every month in case of <mark class="answer-highlight">damage</mark>. <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q5]</span></p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Oh, I see. I'd have to do the math carefully then.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Right. But one helpful thing is that they also do cleaning for customers.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> For the furniture?</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> For the house.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Oh, I see. I probably won't need that.</p>
+            <div class="border-t border-dashed border-slate-300 my-4"></div>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> There's another company called Larch Furniture. It's quite new, and it has the lowest prices in town. That's for both furniture and also <mark class="answer-highlight">electronic</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q6]</span> equipment.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Well, that would be good. I'm not bringing much with me, and I won't have much time to go shopping after I start my job.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> There are two things you need to know about Larch Furniture. First of all, you have to take out <mark class="answer-highlight">insurance</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q7]</span> on the furniture and you need to organize that yourself.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> That wouldn't be too hard.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Also you can't take out a contract for less than six months, but I figure that might not be a problem for you. You're renting the house for 12 months after all, aren't you?</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Yes, okay. Well, I...</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> Sorry to interrupt. I just thought of another furniture rental company. It's called <mark class="answer-highlight">Space</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q8]</span> Rentals, and it's located very near to the house.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Okay.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> I don't have any information about their charges, so it's best to use their <mark class="answer-highlight">app</mark> <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q9]</span> to find out what it would cost you to use them.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> Okay, thanks. I'll do that.</p>
+            <p><strong class="text-slate-900 font-semibold">MAN:</strong> One good thing about that company is that if you don't like the furniture once it's delivered, you can request <mark class="answer-highlight">exchanges</mark>, <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded ml-1">[Q10]</span> as long as you do that within a week of receiving it.</p>
+            <p><strong class="text-sky-800 font-semibold">WOMAN:</strong> That sounds really great. Okay, well, thanks very much. That's so helpful.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alert-modal" class="modal-overlay bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden transition-opacity" style="z-index: 99999;">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative transform transition-all scale-95 opacity-0 text-center" id="alert-modal-content">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-sky-100 mb-4">
+            <svg class="h-6 w-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 id="alert-title" class="text-lg font-bold text-slate-900 mb-2">Attention</h3>
+        <p id="alert-message" class="text-sm text-slate-600 mb-5">Please fill in at least one blank before checking your answers.</p>
+        <button id="close-alert-btn" class="w-full inline-flex justify-center rounded-xl px-4 py-2.5 bg-sky-600 text-sm font-semibold text-white hover:bg-sky-700 transition">
+            Understood
+        </button>
+    </div>
+</div>
+
+<script>
+    const answers = {
+        q1: ["239", "two hundred thirty-nine", "two hundred and thirty-nine"],
+        q2: ["modern"],
+        q3: ["lamp"],
+        q4: ["aaron"],
+        q5: ["damage"],
+        q6: ["electronic"],
+        q7: ["insurance"],
+        q8: ["space"],
+        q9: ["app"],
+        q10: ["exchanges", "exchange"]
+    };
+
+    const explanations = {
+        q1: "The landlord reads from the Peak Rentals brochure: '...the monthly price per room starts at $105 and goes up to $239.'",
+        q2: "Discussing positive feedback, the landlord explains: 'People have mentioned that the furniture from Peak Rentals is more modern than any of the other companies.'",
+        q3: "Describing the current promotion, he notes: 'If you rent living room furniture... you\\'ll also get a lamp at no extra cost.'",
+        q4: "When asked about a cheaper alternative, he suggests: 'Then you could try Aaron and Oliver... Aaron, double A-R-O-N.'",
+        q5: "Explaining the cost structure of Aaron and Oliver: '...they charge an extra 12% every month in case of damage.'",
+        q6: "Regarding Larch Furniture, the man says: '...it has the lowest prices in town. That\\'s for both furniture and also electronic equipment.'",
+        q7: "The landlord highlights requirements: 'First of all you have to take out insurance on the furniture and you need to organize that yourself.'",
+        q8: "The landlord recommends another nearby provider: 'It\\'s called Space Rentals, and it\\'s located very near to the house.'",
+        q9: "When asked about pricing, he clarifies: '...it\\'s best to use their app to find out what it would cost you to use them.'",
+        q10: "Regarding flexible options: '...if you don\\'t like the furniture once it\\'s delivered, you can request exchanges, as long as you do that within a week of receiving it.'"
+    };
+
+    const glossaryData = [
+        {
+            word: "brochure",
+            type: "noun",
+            phonetic: "/ˈbrəʊ.ʃər/",
+            meaning: "A small booklet or magazine containing pictures and information about a product or service.",
+            example: "The landlord checks the prices from the Peak Rentals brochure."
+        },
+        {
+            word: "mid-range",
+            type: "adjective",
+            phonetic: "/ˌmɪdˈreɪndʒ/",
+            meaning: "Neither very expensive nor very cheap; falling in the middle of a price or quality scale.",
+            example: "Aaron and Oliver is considered a mid-range furniture rental provider."
+        },
+        {
+            word: "insurance",
+            type: "noun",
+            phonetic: "/ɪnˈʃʊə.rəns/",
+            meaning: "An arrangement by which a company guarantees compensation for specified loss, damage, or theft in return for payment of a premium.",
+            example: "Customers must arrange their own insurance when renting from Larch Furniture."
+        },
+        {
+            word: "contract",
+            type: "noun",
+            phonetic: "/ˈkɒn.trækt/",
+            meaning: "A written or spoken agreement, especially one concerning employment, sales, or tenancy, that is intended to be enforceable by law.",
+            example: "The minimum rental contract duration is six months."
+        },
+        {
+            word: "exchanges",
+            type: "noun (pl.)",
+            phonetic: "/ɪksˈtʃeɪn.dʒɪz/",
+            meaning: "The act of giving one thing and receiving another in return, especially replacing items of furniture that are unsuitable.",
+            example: "Customers can request exchanges within 7 days of delivery if they are dissatisfied."
+        }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            userAnswers: {},
+            isChecked: false,
+            currentFontSize: 16,
+            audioSpeeds: [1.0, 1.25, 1.5, 0.8],
+            speedIndex: 0,
+
+            // DOM elements
+            leftPane: document.getElementById('left-pane'),
+            rightPane: document.getElementById('right-pane'),
+            splitter: document.getElementById('splitter'),
+            contentPanes: document.getElementById('content-panes'),
+            checkBtn: document.getElementById('check-answers-btn'),
+            clearBtn: document.getElementById('clear-all-btn'),
+            scoreBadge: document.getElementById('score-badge'),
+            scoreText: document.getElementById('score-text'),
+            
+            // Audio elements
+            audio: document.getElementById('custom-audio-element'),
+            playBtn: document.getElementById('custom-play-btn'),
+            playIcon: document.getElementById('play-icon'),
+            pauseIcon: document.getElementById('pause-icon'),
+            progressContainer: document.getElementById('progress-container'),
+            progressBar: document.getElementById('progress-bar'),
+            currentTimeEl: document.getElementById('current-time'),
+            totalTimeEl: document.getElementById('total-time'),
+            speedBtn: document.getElementById('speed-btn'),
+            rewindBtn: document.getElementById('rewind-btn'),
+            forwardBtn: document.getElementById('forward-btn'),
+
+            // Modals
+            transcriptBtn: document.getElementById('transcript-btn'),
+            transcriptModal: document.getElementById('transcript-modal'),
+            transcriptContent: document.getElementById('transcript-modal-content'),
+            closeTranscriptBtn: document.getElementById('close-transcript-modal'),
+
+            vocabBtn: document.getElementById('vocab-btn'),
+            glossaryModal: document.getElementById('glossary-modal'),
+            glossaryContent: document.getElementById('glossary-modal-content'),
+            closeGlossaryBtn: document.getElementById('close-glossary-modal'),
+            glossaryList: document.getElementById('glossary-list'),
+
+            alertModal: document.getElementById('alert-modal'),
+            alertContent: document.getElementById('alert-modal-content'),
+            closeAlertBtn: document.getElementById('close-alert-btn'),
+            alertTitle: document.getElementById('alert-title'),
+            alertMessage: document.getElementById('alert-message'),
+            highlightTooltip: document.getElementById('highlight-tooltip'),
+
+            init() {
+                this.setupEventListeners();
+                this.initAudioPlayer();
+                this.initSplitter();
+                this.initHighlighter();
+                this.populateGlossary();
+            },
+
+            setupEventListeners() {
+                // Font Size adjustments
+                document.getElementById('increase-font-btn').addEventListener('click', () => this.adjustFontSize(1));
+                document.getElementById('decrease-font-btn').addEventListener('click', () => this.adjustFontSize(-1));
+
+                // Input listener
+                document.body.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('fill-in-blank')) {
+                        const name = e.target.name;
+                        this.userAnswers[name] = e.target.value;
+                        e.target.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    }
+                });
+
+                // Check answers / Reset
+                this.checkBtn.addEventListener('click', () => {
+                    if (this.isChecked) {
+                        this.resetTest();
+                    } else {
+                        this.validateAndGrade();
+                    }
+                });
+
+                // Clear inputs
+                this.clearBtn.addEventListener('click', () => {
+                    this.resetInputsOnly();
+                });
+
+                // Transcript button
+                this.transcriptBtn.addEventListener('click', () => {
+                    if (!this.isChecked) {
+                        this.showAlert("Transcript Locked", "Please check your answers first before viewing the full audio transcript.");
+                    } else {
+                        this.openModal(this.transcriptModal, this.transcriptContent);
+                    }
+                });
+                this.closeTranscriptBtn.addEventListener('click', () => this.closeModal(this.transcriptModal, this.transcriptContent));
+
+                // Glossary button
+                this.vocabBtn.addEventListener('click', () => this.openModal(this.glossaryModal, this.glossaryContent));
+                this.closeGlossaryBtn.addEventListener('click', () => this.closeModal(this.glossaryModal, this.glossaryContent));
+
+                // Alert button
+                this.closeAlertBtn.addEventListener('click', () => this.closeModal(this.alertModal, this.alertContent));
+
+                // Close modals on backdrop click
+                [this.transcriptModal, this.glossaryModal, this.alertModal].forEach(modal => {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            const content = modal.querySelector('div[id$="-content"]');
+                            this.closeModal(modal, content);
+                        }
+                    });
+                });
+            },
+
+            initAudioPlayer() {
+                const formatTime = (sec) => {
+                    if (isNaN(sec)) return "0:00";
+                    const m = Math.floor(sec / 60);
+                    const s = Math.floor(sec % 60);
+                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                };
+
+                this.audio.addEventListener('loadedmetadata', () => {
+                    this.totalTimeEl.textContent = formatTime(this.audio.duration);
+                });
+
+                this.playBtn.addEventListener('click', () => {
+                    if (this.audio.paused) {
+                        this.audio.play();
+                        this.playIcon.classList.add('hidden');
+                        this.pauseIcon.classList.remove('hidden');
+                    } else {
+                        this.audio.pause();
+                        this.playIcon.classList.remove('hidden');
+                        this.pauseIcon.classList.add('hidden');
+                    }
+                });
+
+                this.audio.addEventListener('timeupdate', () => {
+                    this.currentTimeEl.textContent = formatTime(this.audio.currentTime);
+                    const pct = (this.audio.currentTime / (this.audio.duration || 1)) * 100;
+                    this.progressBar.style.width = `${pct}%`;
+                });
+
+                this.audio.addEventListener('ended', () => {
+                    this.playIcon.classList.remove('hidden');
+                    this.pauseIcon.classList.add('hidden');
+                    this.progressBar.style.width = '0%';
+                    this.currentTimeEl.textContent = '0:00';
+                });
+
+                this.progressContainer.addEventListener('click', (e) => {
+                    const rect = this.progressContainer.getBoundingClientRect();
+                    const ratio = (e.clientX - rect.left) / rect.width;
+                    if (this.audio.duration) {
+                        this.audio.currentTime = ratio * this.audio.duration;
+                    }
+                });
+
+                // 5s jump buttons
+                this.rewindBtn.addEventListener('click', () => {
+                    this.audio.currentTime = Math.max(0, this.audio.currentTime - 5);
+                });
+                this.forwardBtn.addEventListener('click', () => {
+                    if (this.audio.duration) {
+                        this.audio.currentTime = Math.min(this.audio.duration, this.audio.currentTime + 5);
+                    }
+                });
+
+                // Speed toggle
+                this.speedBtn.addEventListener('click', () => {
+                    this.speedIndex = (this.speedIndex + 1) % this.audioSpeeds.length;
+                    const speed = this.audioSpeeds[this.speedIndex];
+                    this.audio.playbackRate = speed;
+                    this.speedBtn.textContent = `${speed}x`;
+                });
+            },
+
+            validateAndGrade() {
+                const answeredKeys = Object.keys(this.userAnswers).filter(k => this.userAnswers[k] && this.userAnswers[k].trim() !== "");
+                if (answeredKeys.length === 0) {
+                    this.showAlert("All Blanks Empty", "Please attempt to fill in the answers based on the audio before checking.");
+                    return;
+                }
+
+                let score = 0;
+                const normalize = (str) => (str || "").toLowerCase().trim().replace(/^(the\s+|a\s+|an\s+)/, "").replace(/[,\/#$%\^&\*;:{}=\-_`~()]/g, " ").replace(/\s+/g, " ").trim();
+
+                for (let i = 1; i <= 10; i++) {
+                    const qId = `q${i}`;
+                    const inputEl = document.querySelector(`input[name="${qId}"]`);
+                    const container = document.getElementById(`container-${qId}`);
+                    if (!inputEl) continue;
+
+                    const rawUserVal = (this.userAnswers[qId] || "").toLowerCase().trim();
+                    const userValNorm = normalize(rawUserVal);
+                    
+                    const acceptable = answers[qId];
+                    const isCorrect = acceptable.some(a => {
+                        const aNorm = normalize(a);
+                        return aNorm === userValNorm || rawUserVal === a.toLowerCase();
+                    });
+
+                    inputEl.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                    if (isCorrect) {
+                        score++;
+                        inputEl.classList.add('correct-answer-text');
+                    } else {
+                        inputEl.classList.add('incorrect-answer-text');
+                    }
+
+                    // Explanation Box
+                    if (container) {
+                        const existing = document.getElementById(`expl-${qId}`);
+                        if (existing) existing.remove();
+
+                        const explDiv = document.createElement('div');
+                        explDiv.id = `expl-${qId}`;
+                        explDiv.className = `explanation-box ${isCorrect ? '' : 'incorrect'}`;
+                        const displayAns = answers[qId][0].toUpperCase();
+                        explDiv.innerHTML = `
+                            <strong>Correct Answer: ${displayAns}</strong>
+                            <span class="block mt-1 text-xs opacity-90">${explanations[qId]}</span>
+                        `;
+                        container.insertAdjacentElement('afterend', explDiv);
+                    }
+                }
+
+                // Update score badge
+                this.scoreBadge.classList.remove('hidden');
+                this.scoreBadge.classList.add('flex');
+                this.scoreText.textContent = `${score}/10`;
+
+                // Update Button states
+                this.isChecked = true;
+                this.checkBtn.className = 'px-6 py-2.5 text-sm sm:text-base font-bold bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-md transition-all flex items-center gap-2';
+                this.checkBtn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Reset Test
+                `;
+
+                // Unlock Transcript Button
+                this.transcriptBtn.classList.remove('bg-slate-200', 'text-slate-500', 'cursor-not-allowed');
+                this.transcriptBtn.classList.add('bg-sky-600', 'hover:bg-sky-700', 'text-white', 'cursor-pointer');
+                this.transcriptBtn.removeAttribute('title');
+            },
+
+            resetTest() {
+                this.isChecked = false;
+                this.userAnswers = {};
+
+                document.querySelectorAll('.fill-in-blank').forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                });
+
+                document.querySelectorAll('.explanation-box').forEach(el => el.remove());
+
+                this.scoreBadge.classList.add('hidden');
+                this.scoreBadge.classList.remove('flex');
+
+                this.checkBtn.className = 'px-6 py-2.5 text-sm sm:text-base font-bold bg-sky-600 hover:bg-sky-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2';
+                this.checkBtn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Check Answers
+                `;
+
+                this.transcriptBtn.classList.add('bg-slate-200', 'text-slate-500', 'cursor-not-allowed');
+                this.transcriptBtn.classList.remove('bg-sky-600', 'hover:bg-sky-700', 'text-white');
+                this.transcriptBtn.setAttribute('title', 'Check answers to unlock transcript');
+            },
+
+            resetInputsOnly() {
+                document.querySelectorAll('.fill-in-blank').forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct-answer-text', 'incorrect-answer-text');
+                });
+                this.userAnswers = {};
+                document.querySelectorAll('.explanation-box').forEach(el => el.remove());
+            },
+
+            populateGlossary() {
+                this.glossaryList.innerHTML = glossaryData.map(item => `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-sky-300 transition">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-slate-900 capitalize text-base">${item.word}</span>
+                            <span class="text-xs text-sky-800 font-mono bg-sky-100 px-2 py-0.5 rounded">${item.phonetic}</span>
+                        </div>
+                        <p class="text-slate-600 text-xs mb-1.5">${item.meaning}</p>
+                        <p class="text-slate-400 italic text-[11px] border-l-2 border-slate-300 pl-2">"${item.example}"</p>
+                    </div>
+                `).join('');
+            },
+
+            adjustFontSize(delta) {
+                this.currentFontSize = Math.min(24, Math.max(14, this.currentFontSize + delta));
+                document.documentElement.style.setProperty('--app-font-size', `${this.currentFontSize}px`);
+            },
+
+            openModal(modal, content) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeModal(modal, content) {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+                    if (openModals.length === 0) {
+                        document.body.style.overflow = '';
+                    }
+                }, 200);
+            },
+
+            showAlert(title, message) {
+                this.alertTitle.textContent = title;
+                this.alertMessage.textContent = message;
+                this.openModal(this.alertModal, this.alertContent);
+            },
+
+            initSplitter() {
+                let dragging = false;
+                this.splitter.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    dragging = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!dragging || window.innerWidth <= 960) return;
+                    e.preventDefault();
+                    const rect = this.contentPanes.getBoundingClientRect();
+                    const newLeft = e.clientX - rect.left;
+                    if (newLeft > 320 && newLeft < rect.width - 320) {
+                        const pct = (newLeft / rect.width) * 100;
+                        this.contentPanes.style.gridTemplateColumns = `${pct}% 6px 1fr`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (dragging) {
+                        dragging = false;
+                        document.body.style.cursor = 'default';
+                    }
+                });
+            },
+
+            initHighlighter() {
+                const tooltip = this.highlightTooltip;
+
+                const updateTooltipPosition = () => {
+                    const sel = window.getSelection();
+                    if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    const text = sel.toString().trim();
+                    if (text.length === 0) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    const range = sel.getRangeAt(0);
+                    const isInsidePanes = this.leftPane.contains(range.commonAncestorContainer) || 
+                                          this.rightPane.contains(range.commonAncestorContainer);
+
+                    if (!isInsidePanes) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    const rect = range.getBoundingClientRect();
+                    if (rect.width === 0 || rect.height === 0) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    tooltip.style.display = 'flex';
+                    const tooltipRect = tooltip.getBoundingClientRect();
+
+                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                    let top = rect.top - tooltipRect.height - 9;
+
+                    if (left < 10) left = 10;
+                    if (left + tooltipRect.width > window.innerWidth - 10) {
+                        left = window.innerWidth - tooltipRect.width - 10;
+                    }
+                    if (top < 10) {
+                        top = rect.bottom + 8;
+                    }
+
+                    tooltip.style.left = `${left}px`;
+                    tooltip.style.top = `${top}px`;
+                };
+
+                document.addEventListener('mouseup', () => {
+                    setTimeout(updateTooltipPosition, 20);
+                });
+
+                this.leftPane.addEventListener('scroll', () => { tooltip.style.display = 'none'; }, { passive: true });
+                this.rightPane.addEventListener('scroll', () => { tooltip.style.display = 'none'; }, { passive: true });
+                window.addEventListener('resize', () => { tooltip.style.display = 'none'; });
+
+                document.addEventListener('mousedown', (e) => {
+                    if (e.target !== tooltip && !tooltip.contains(e.target)) {
+                        tooltip.style.display = 'none';
+                    }
+                });
+
+                tooltip.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const sel = window.getSelection();
+                    if (!sel || sel.rangeCount === 0) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    const range = sel.getRangeAt(0);
+                    const mark = document.createElement('mark');
+                    mark.title = "Click to remove highlight";
+
+                    mark.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const parent = mark.parentNode;
+                        while (mark.firstChild) {
+                            parent.insertBefore(mark.firstChild, mark);
+                        }
+                        parent.removeChild(mark);
+                    });
+
+                    try {
+                        range.surroundContents(mark);
+                    } catch (err) {
+                        try {
+                            const contents = range.extractContents();
+                            mark.appendChild(contents);
+                            range.insertNode(mark);
+                        } catch (subErr) {
+                            console.warn("Highlight failed:", subErr);
+                        }
+                    }
+
+                    sel.removeAllRanges();
+                    tooltip.style.display = 'none';
+                });
+            }
+        };
+
+        app.init();
+    });
+</script>
+
+</body>
+</html>
