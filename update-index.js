@@ -3,8 +3,14 @@
 /**
  * update-index.js
  * 
- * Automatically indexes IELTS Listening simulator files (Part [1-4] - <Title>.html)
- * into index.html with accurate exercise badges, updates all filter counters and statistics,
+ * Automatically indexes IELTS Listening simulator files organized in Part folders:
+ *   - Part 1/
+ *   - Part 2/
+ *   - Part 3/
+ *   - Part 4/
+ * Also auto-organizes any newly added test files placed in the root directory.
+ * 
+ * Updates index.html with accurate exercise badges, updates all filter counters and statistics,
  * creates an automatic backup before writing, and optionally commits and pushes to GitHub.
  * 
  * Usage:
@@ -116,16 +122,18 @@ function detectBadges(filename, content) {
   return Array.from(detected);
 }
 
-// Generate single card HTML
-function generateCardHtml(partNum, filename, title, badges) {
-  const encodedFilename = encodeURI(filename).replace(/%20/g, '%20').replace(/'/g, '%27');
+// Generate single card HTML with relative path
+function generateCardHtml(partNum, relPath, title, badges) {
+  // Convert Windows backslashes to forward slashes and URL encode
+  const cleanRelPath = relPath.replace(/\\/g, '/');
+  const encodedPath = cleanRelPath.split('/').map(seg => encodeURIComponent(seg).replace(/'/g, '%27')).join('/');
   
   const badgesHtml = badges.map(b => {
     const styleClass = BADGE_STYLES[b] || DEFAULT_BADGE_STYLE;
     return `<button type="button" onclick="filterByBadge(event, '${b}')" class="badge-chip inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${styleClass} tracking-tight cursor-pointer" title="Click to filter by ${b}">${b}</button>`;
   }).join('\n                            ');
 
-  return `                    <a href="${encodedFilename}" class="searchable block group glass-panel rounded-xl p-5 card-hover relative overflow-hidden flex flex-col justify-between">
+  return `                    <a href="${encodedPath}" class="searchable block group glass-panel rounded-xl p-5 card-hover relative overflow-hidden flex flex-col justify-between">
                         <div class="absolute top-0 left-0 w-1 h-full part-${partNum}-grad opacity-50 group-hover:opacity-100 transition-opacity"></div>
                         <div class="mb-4">
                             <div class="flex justify-between items-start mb-2.5">
@@ -152,56 +160,76 @@ async function main() {
     process.exit(1);
   }
 
-  // 1. Scan directory for test files
-  const files = fs.readdirSync(REPO_DIR).filter(f => /^Part\s+[1-4]\s*-\s*.+\.html$/i.test(f));
-  log(`Found ${green(files.length)} test simulator files in workspace.`);
+  // 1. Auto-organize any test simulator files accidentally placed in root
+  const rootFiles = fs.readdirSync(REPO_DIR).filter(f => /^Part\s+[1-4]\s*-\s*.+\.html$/i.test(f));
+  if (rootFiles.length > 0 && !isDryRun) {
+    for (const filename of rootFiles) {
+      const match = filename.match(/^Part\s+([1-4])\s*-\s*(.+)\.html$/i);
+      if (!match) continue;
+      const partNum = parseInt(match[1], 10);
+      const targetDir = path.join(REPO_DIR, `Part ${partNum}`);
+      if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+      const oldPath = path.join(REPO_DIR, filename);
+      const newPath = path.join(targetDir, filename);
+      fs.renameSync(oldPath, newPath);
+      log(`${cyan('Auto-organized to folder:')} ${filename} -> Part ${partNum}/${filename}`);
+    }
+  }
 
+  // 2. Scan Part folders (Part 1, Part 2, Part 3, Part 4)
   const testsByPart = { 1: [], 2: [], 3: [], 4: [] };
   const allTests = [];
 
-  for (const filename of files) {
-    const match = filename.match(/^Part\s+([1-4])\s*-\s*(.+)\.html$/i);
-    if (!match) continue;
+  for (let p = 1; p <= 4; p++) {
+    const partFolder = path.join(REPO_DIR, `Part ${p}`);
+    if (!fs.existsSync(partFolder)) continue;
 
-    const partNum = parseInt(match[1], 10);
-    const title = match[2].trim();
-    const filePath = path.join(REPO_DIR, filename);
-    const content = fs.readFileSync(filePath, 'utf8');
-    const badges = detectBadges(filename, content);
+    const filesInPart = fs.readdirSync(partFolder).filter(f => f.endsWith('.html'));
+    for (const filename of filesInPart) {
+      const match = filename.match(/^Part\s+([1-4])\s*-\s*(.+)\.html$/i);
+      const partNum = match ? parseInt(match[1], 10) : p;
+      const title = match ? match[2].trim() : path.basename(filename, '.html');
+      const relPath = `Part ${p}/${filename}`;
+      const fullPath = path.join(partFolder, filename);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const badges = detectBadges(filename, content);
 
-    const testInfo = { partNum, filename, title, badges };
-    testsByPart[partNum].push(testInfo);
-    allTests.push(testInfo);
+      const testInfo = { partNum, filename, relPath, title, badges };
+      testsByPart[p].push(testInfo);
+      allTests.push(testInfo);
+    }
   }
+
+  log(`Found ${green(allTests.length)} test simulator files across folders Part 1–4.`);
 
   // Read current index.html
   let indexContent = fs.readFileSync(INDEX_PATH, 'utf8');
 
-  // Extract existing cards in index.html to know what's already there
+  // Extract existing card basenames in index.html to know what's already there
   const existingCardsInIndex = new Set();
   const cardHrefRegex = /<a href="([^"]+)" class="searchable[^"]*">/g;
   let chMatch;
   while ((chMatch = cardHrefRegex.exec(indexContent)) !== null) {
-    const href = decodeURIComponent(chMatch[1]);
-    existingCardsInIndex.add(href);
+    const rawHref = decodeURIComponent(chMatch[1]);
+    const baseName = path.basename(rawHref);
+    existingCardsInIndex.add(baseName);
   }
 
-  log(`Existing cards in index.html: ${yellow(existingCardsInIndex.size)}`);
+  log(`Existing cards registered in index.html: ${yellow(existingCardsInIndex.size)}`);
 
   const newlyAdded = allTests.filter(t => !existingCardsInIndex.has(t.filename));
   if (newlyAdded.length > 0) {
     log(`\n${green('✨ Newly detected tests to add (' + newlyAdded.length + '):')}`);
     newlyAdded.forEach(t => log(`  + [Part ${t.partNum}] ${t.title} [${t.badges.join(', ')}]`));
   } else {
-    log(`\n${cyan('✓ All current test files are already registered in index.html.')}`);
+    log(`\n${cyan('✓ All test files are registered. Updating card links and metrics...')}`);
   }
 
-  // 2. Update each Part grid in index.html
+  // 3. Update each Part grid in index.html
   for (let part = 1; part <= 4; part++) {
     const partTests = testsByPart[part];
     
     // Locate the section for this part
-    // Section pattern: <section class="module" data-category="partX"> ... <div class="... card-container">...</div>\n            </section>
     const sectionRegex = new RegExp(`(<section class="module" data-category="part${part}">[\\s\\S]*?<div class="grid [^"]*card-container">)([\\s\\S]*?)(<\\/div>\\s*<\\/section>)`, 'i');
     const sectionMatch = indexContent.match(sectionRegex);
 
@@ -220,25 +248,25 @@ async function main() {
     const existingCardsInPart = new Map();
     while ((cMatch = cardRegex.exec(existingGridBody)) !== null) {
       const href = decodeURIComponent(cMatch[1]);
-      existingCardsInPart.set(href, cMatch[0]);
+      const baseName = path.basename(href);
+      existingCardsInPart.set(baseName, cMatch[0]);
     }
 
     // Build updated cards list for this part
     const updatedCards = [];
     
-    // First keep existing cards in their order, updating badges if needed
-    for (const [href, existingCardHtml] of existingCardsInPart.entries()) {
-      const test = partTests.find(t => t.filename === href);
+    // First keep existing cards in their order, updating paths and badges
+    for (const [baseName] of existingCardsInPart.entries()) {
+      const test = partTests.find(t => t.filename === baseName);
       if (test) {
-        // Regenerate card to ensure badges are up to date
-        updatedCards.push(generateCardHtml(part, test.filename, test.title, test.badges));
+        updatedCards.push(generateCardHtml(part, test.relPath, test.title, test.badges));
       }
     }
 
     // Add any new tests that were not in existingCardsInPart
     for (const test of partTests) {
       if (!existingCardsInPart.has(test.filename)) {
-        updatedCards.push(generateCardHtml(part, test.filename, test.title, test.badges));
+        updatedCards.push(generateCardHtml(part, test.relPath, test.title, test.badges));
       }
     }
 
@@ -246,7 +274,7 @@ async function main() {
     indexContent = indexContent.replace(sectionRegex, `${gridHeader}${newGridBody}${gridFooter}`);
   }
 
-  // 3. Recalculate stats and badge counts
+  // 4. Recalculate stats and badge counts
   const totalCount = allTests.length;
   const partCounts = {
     1: testsByPart[1].length,
@@ -262,14 +290,13 @@ async function main() {
     }
   }
 
-  // 4. Update Header Quick Stats
-  // <span class="text-white font-bold text-sm">28</span>\s*<span class="text-slate-400 text-xs font-medium">Practice Tests</span>
+  // 5. Update Header Quick Stats
   indexContent = indexContent.replace(
     /(<span class="text-white font-bold text-sm">)\d+(<\/span>\s*<span class="text-slate-400 text-xs font-medium">Practice Tests<\/span>)/,
     `$1${totalCount}$2`
   );
 
-  // 5. Update Part Filter Buttons
+  // 6. Update Part Filter Buttons
   indexContent = indexContent.replace(
     /(id="btn-all"[^>]*>All Parts )\(\d+\)(<\/button>)/,
     `$1(${totalCount})$2`
@@ -279,21 +306,20 @@ async function main() {
     indexContent = indexContent.replace(pRegex, `$1(${partCounts[p]})$2`);
   }
 
-  // 6. Update Exercise Type Filter Buttons
+  // 7. Update Exercise Type Filter Buttons
   for (const cfg of TYPE_BUTTON_MAP) {
     const count = typeCounts[cfg.key] || 0;
     const btnRegex = new RegExp(`(id="${cfg.id}"[^>]*>${cfg.label} )\\(\\d+\\)(<\\/button>)`);
     indexContent = indexContent.replace(btnRegex, `$1(${count})$2`);
   }
 
-  // 7. Update Real-time Results Counter Header
-  // Showing <span id="visibleCount" ...>28</span> of <span class="font-semibold text-slate-300">28</span> tests
+  // 8. Update Real-time Results Counter Header
   indexContent = indexContent.replace(
     /(Showing <span id="visibleCount"[^>]*>)\d+(<\/span> of <span class="font-semibold text-slate-300">)\d+(<\/span> tests)/,
     `$1${totalCount}$2${totalCount}$3`
   );
 
-  // 8. Write to index.html with automatic backup
+  // 9. Write to index.html with automatic backup
   if (isDryRun) {
     log(`\n${yellow('[DRY RUN]')} index.html would be updated with:`);
     log(`  Total Tests: ${totalCount}`);
@@ -317,21 +343,20 @@ async function main() {
 
   // Write updated index.html
   fs.writeFileSync(INDEX_PATH, indexContent, 'utf8');
-  log(`${green('✓ index.html updated successfully!')}`);
+  log(`${green('✓ index.html updated successfully with folder paths!')}`);
   log(`  • Total Tests: ${bold(totalCount)}`);
   log(`  • Part 1: ${bold(partCounts[1])} | Part 2: ${bold(partCounts[2])} | Part 3: ${bold(partCounts[3])} | Part 4: ${bold(partCounts[4])}`);
 
-  // 9. Git Automation (if --push)
+  // 10. Git Automation (if --push)
   if (isPush) {
     log(`\n${bold('📦 Committing & Pushing to GitHub...')}`);
     try {
-      // Stage files: index.html, updater scripts, .gitignore, and all test simulator files
-      execSync('git add index.html .gitignore update-index.js update-and-push.bat update-and-push.ps1 "Part *.html"', { cwd: REPO_DIR, stdio: 'inherit' });
+      execSync('git add -A index.html update-index.js update-and-push.bat update-and-push.ps1 .gitignore "Part 1" "Part 2" "Part 3" "Part 4"', { cwd: REPO_DIR, stdio: 'inherit' });
       
       const commitMsg = customMessage || (
         newlyAdded.length > 0 
           ? `feat: add ${newlyAdded.length} new tests and update index (${totalCount} total)`
-          : `chore: update test index and exercise statistics`
+          : `refactor: organize exercises into Part 1-4 folders and update links`
       );
 
       try {
