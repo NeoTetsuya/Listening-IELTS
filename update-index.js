@@ -130,22 +130,29 @@ function generateCardHtml(partNum, relPath, title, badges) {
   
   const badgesHtml = badges.map(b => {
     const styleClass = BADGE_STYLES[b] || DEFAULT_BADGE_STYLE;
-    return `<button type="button" onclick="filterByBadge(event, '${b}')" class="badge-chip inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${styleClass} tracking-tight cursor-pointer" title="Click to filter by ${b}">${b}</button>`;
+    return `<button type="button" onclick="filterByBadge(event, '${b}')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border ${styleClass} tracking-tight cursor-pointer" title="Click to filter by ${b}">${b}</button>`;
   }).join('\n                            ');
 
-  return `                    <a href="${encodedPath}" class="searchable block group glass-panel rounded-xl p-5 card-hover relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 left-0 w-1 h-full part-${partNum}-grad opacity-50 group-hover:opacity-100 transition-opacity"></div>
+  return `                    <a href="${encodedPath}" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-${partNum}-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="mb-4">
-                            <div class="flex justify-between items-start mb-2.5">
-                                <span class="text-white font-bold text-lg leading-tight pr-4 line-clamp-2">${title}</span>
-                                <i data-lucide="play-circle" class="w-6 h-6 text-slate-500 play-icon transition-all duration-300 group-hover:animate-pulse mt-0.5 flex-shrink-0"></i>
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">${title}</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
                             </div>
                             <div class="flex flex-wrap gap-1.5 mt-2">
                             ${badgesHtml}
                             </div>
                         </div>
-                        <div class="flex gap-2 items-center text-xs font-medium text-slate-400 pt-2 border-t border-slate-800/60">
-                            <i data-lucide="headphones" class="w-3.5 h-3.5 text-slate-500"></i> 10 Questions
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
                         </div>
                     </a>`;
 }
@@ -309,7 +316,7 @@ async function main() {
   // 7. Update Exercise Type Filter Buttons
   for (const cfg of TYPE_BUTTON_MAP) {
     const count = typeCounts[cfg.key] || 0;
-    const btnRegex = new RegExp(`(id="${cfg.id}"[^>]*>${cfg.label} )\\(\\d+\\)(<\\/button>)`);
+    const btnRegex = new RegExp(`(id="${cfg.id}"[\\s\\S]*?${cfg.label}\\s*)\\(\\d+\\)(\\s*<\\/button>)`, 'i');
     indexContent = indexContent.replace(btnRegex, `$1(${count})$2`);
   }
 
