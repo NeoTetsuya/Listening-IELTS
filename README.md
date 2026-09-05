@@ -68,6 +68,12 @@ Listening-IELTS/
 ├── index.html               # Master Interactive Simulator Hub & Directory
 ├── auto-sort.js             # Standalone file detection & folder auto-sorter
 ├── auto-sort.bat            # Windows 1-click shortcut for auto-sorting
+├── validate-tests.js        # Health audit & audio link validator
+├── validate-tests.bat       # Windows 1-click shortcut for health audit
+├── create-test.js           # Interactive test generator & scaffolder
+├── create-test.bat          # Windows 1-click shortcut to scaffold test
+├── manage-backups.js        # Backup pruner and 1-click restore utility
+├── manage-backups.bat       # Windows 1-click shortcut to manage backups
 ├── update-index.js          # Auto-indexer, card generator, and GitHub sync
 ├── update-and-push.bat      # Windows 1-click update & git push script
 ├── update-and-push.ps1      # PowerShell sync automation script
@@ -76,17 +82,42 @@ Listening-IELTS/
 
 ---
 
-## 🚀 Workflow & Automation Scripts
+## 🚀 Workflow & Quality of Life (QoL) Scripts
 
 ### 1. Automatically Sort Loose Files
-If you add new test files to the repository root or subfolders, simply run:
+If you drop new test files into the root or subfolders, simply run:
 ```bash
 node auto-sort.js
 ```
 *Or double-click `auto-sort.bat` on Windows.*
 > **Tip**: Run `node auto-sort.js --dry-run` to preview moves and renames without making changes.
 
-### 2. Automatically Update `index.html` & Sync to GitHub
+### 2. Scaffold a New Test in Seconds
+Generate a complete, standardized test simulator with interactive audio, questions, and tapescript:
+```bash
+node create-test.js
+```
+*Or double-click `create-test.bat` on Windows.*
+> **Note**: Also accepts CLI flags, e.g. `node create-test.js --part 1 --title "Library Membership"`. The newly scaffolded test is automatically sorted and added to `index.html` immediately.
+
+### 3. Audit Test Health & Audio Links
+Scan all 36 tests across Parts 1–4 to verify audio sources, question counts, and answer keys:
+```bash
+node validate-tests.js
+```
+*Or double-click `validate-tests.bat` on Windows.*
+> **Tip**: Run `node validate-tests.js --check-urls` to perform live HTTP pings verifying that remote audio servers respond.
+
+### 4. Prune or Restore Backups
+Manage the `_backups/` directory to reclaim disk space or rollback files:
+```bash
+node manage-backups.js             # List all stored backups
+node manage-backups.js --prune     # Keep latest 5 backups per file, delete older ones
+node manage-backups.js --restore   # Interactively select a backup to restore
+```
+*Or double-click `manage-backups.bat` on Windows.*
+
+### 5. Automatically Update `index.html` & Sync to GitHub
 To scan all Part folders, update card links, synchronize metrics, sort the grid alphabetically, and push to GitHub in one step:
 ```bash
 node update-index.js --push -m "feat: add new practice tests"
