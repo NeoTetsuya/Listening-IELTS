@@ -219,8 +219,12 @@
                     </div>
                     <span class="font-bold text-xl tracking-tight text-white">IELTS<span class="text-indigo-400">Master</span></span>
                 </div>
-                <div class="hidden sm:flex items-center gap-3">
-                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-300 bg-slate-800/60 px-4 py-2 rounded-full border border-slate-700/80 shadow-inner">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="builder.html" class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-xs font-semibold text-indigo-300 hover:text-indigo-200 transition-all active:scale-95 shadow-sm">
+                        <i data-lucide="wand-2" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span>Test Builder</span>
+                    </a>
+                    <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-300 bg-slate-800/60 px-4 py-2 rounded-full border border-slate-700/80 shadow-inner">
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -270,7 +274,7 @@
             <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
                 <div class="glass-panel px-4 py-2 rounded-xl flex items-center gap-2.5 border border-slate-800/80">
                     <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                    <span class="text-white font-bold text-sm">36</span>
+                    <span class="text-white font-bold text-sm">37</span>
                     <span class="text-slate-400 text-xs font-medium">Practice Tests</span>
                 </div>
                 <div class="glass-panel px-4 py-2 rounded-xl flex items-center gap-2.5 border border-slate-800/80">
@@ -292,8 +296,8 @@
                 
                 <!-- Part / Section Filters -->
                 <div class="flex overflow-x-auto hide-scrollbar w-full md:w-auto gap-2 pb-1 md:pb-0" id="categoryFilters">
-                    <button onclick="setCategory('all')" id="btn-all" class="filter-btn px-4 py-2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold whitespace-nowrap hover:bg-indigo-500/30 transition-all active:scale-95">All Parts (36)</button>
-                    <button onclick="setCategory('part1')" id="btn-part1" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-blue-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 1 (19)</button>
+                    <button onclick="setCategory('all')" id="btn-all" class="filter-btn px-4 py-2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold whitespace-nowrap hover:bg-indigo-500/30 transition-all active:scale-95">All Parts (37)</button>
+                    <button onclick="setCategory('part1')" id="btn-part1" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-blue-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 1 (20)</button>
                     <button onclick="setCategory('part2')" id="btn-part2" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-purple-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 2 (6)</button>
                     <button onclick="setCategory('part3')" id="btn-part3" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-emerald-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 3 (5)</button>
                     <button onclick="setCategory('part4')" id="btn-part4" class="filter-btn px-4 py-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 hover:border-amber-500/30 text-xs font-semibold whitespace-nowrap transition-all active:scale-95">Part 4 (6)</button>
@@ -376,7 +380,7 @@
                             Multiple Choice (15)
                         </button>
                         <button onclick="setExerciseType('notes completion')" id="type-btn-notes" class="type-filter-btn px-3.5 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all duration-150 bg-slate-800/60 text-slate-400 hover:text-amber-300 border border-slate-700/80 hover:border-amber-500/40 hover:bg-slate-800 active:scale-95">
-                            Notes Completion (13)
+                            Notes Completion (14)
                         </button>
                         <button onclick="setExerciseType('form completion')" id="type-btn-form" class="type-filter-btn px-3.5 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all duration-150 bg-slate-800/60 text-slate-400 hover:text-cyan-300 border border-slate-700/80 hover:border-cyan-500/40 hover:bg-slate-800 active:scale-95">
                             Form Completion (7)
@@ -411,7 +415,7 @@
         <!-- Real-time Results Counter Header -->
         <div class="flex items-center justify-between mb-8 px-1">
             <div class="text-xs sm:text-sm text-slate-400 font-medium">
-                Showing <span id="visibleCount" class="font-bold text-indigo-400">36</span> of <span class="font-semibold text-slate-300">36</span> tests
+                Showing <span id="visibleCount" class="font-bold text-indigo-400">37</span> of <span class="font-semibold text-slate-300">37</span> tests
                 <span id="activeFilterDesc" class="ml-1 text-slate-500"></span>
             </div>
             <button onclick="resetAllFilters()" id="resetFiltersBtn" class="hidden text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1 font-semibold cursor-pointer">
@@ -464,6 +468,28 @@
                         <div class="mb-4">
                             <div class="flex justify-between items-start gap-3 mb-2.5">
                                 <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">Birmingham Exhibition</span>
+                                <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="filterByBadge(event, 'Notes Completion')" class="badge-chip inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold border bg-amber-500/10 text-amber-300 border-amber-500/20 hover:border-amber-400/40 tracking-tight cursor-pointer" title="Click to filter by Notes Completion">Notes Completion</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-medium text-slate-400 pt-3 border-t border-slate-800/70">
+                            <span class="inline-flex items-center gap-1.5 text-slate-400 group-hover:text-slate-300">
+                                <i data-lucide="headphones" class="w-3.5 h-3.5 text-indigo-400/80"></i> 10 Questions
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-slate-500 font-mono">
+                                <i data-lucide="clock" class="w-3 h-3"></i> ~10m
+                            </span>
+                        </div>
+                    </a>
+                    <a href="Part%201/Part%201%20-%20City%20Bike%20Rental%20Service.html" class="searchable block group glass-panel rounded-2xl p-5 card-hover relative overflow-hidden flex flex-col justify-between border border-slate-800/80 hover:border-slate-700/80">
+                        <div class="absolute top-0 left-0 w-1.5 h-full part-1-grad opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start gap-3 mb-2.5">
+                                <span class="text-slate-100 font-bold text-base sm:text-lg leading-snug group-hover:text-white transition-colors line-clamp-2">City Bike Rental Service</span>
                                 <div class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-indigo-600/30 group-hover:border-indigo-400/40 play-icon flex-shrink-0">
                                     <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
                                 </div>
